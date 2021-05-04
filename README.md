@@ -69,6 +69,7 @@ Both models were downloaded from the Google Poly project:
 * [Flower](https://poly.google.com/view/eydI4__jXpi)
 
 This skeleton project was adapted from [edwinwebb's ThreeJS seed project](https://github.com/edwinwebb/three-seed]) by Reilly Bova ’20.
+https://poly.google.com/view/5vbJ5vildOq piano
 
 ## License
 [MIT](./LICENSE)

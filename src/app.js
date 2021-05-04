@@ -6,18 +6,21 @@
  * handles window resizes.
  *
  */
-import { WebGLRenderer, PerspectiveCamera, Vector3 } from 'three';
+import { WebGLRenderer, PerspectiveCamera, Vector3, AudioListener } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { SeedScene } from 'scenes';
+import { MusicScene } from 'scenes';
 
+console.log(window)
 // Initialize core ThreeJS components
-const scene = new SeedScene();
-const camera = new PerspectiveCamera();
+const camera = new PerspectiveCamera(); 
+const audiolist = new AudioListener()
+camera.add(audiolist)
+const scene = new MusicScene(camera, audiolist, window);
 const renderer = new WebGLRenderer({ antialias: true });
 
 // Set up camera
-camera.position.set(6, 3, -10);
-camera.lookAt(new Vector3(0, 0, 0));
+camera.position.set(-7, 10, 11);
+camera.lookAt(new Vector3(0, 15, 0));
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -30,9 +33,9 @@ document.body.appendChild(canvas);
 // Set up controls
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
-controls.enablePan = false;
+controls.enablePan = true;
 controls.minDistance = 4;
-controls.maxDistance = 16;
+controls.maxDistance = 20;
 controls.update();
 
 // Render loop
@@ -53,3 +56,8 @@ const windowResizeHandler = () => {
 };
 windowResizeHandler();
 window.addEventListener('resize', windowResizeHandler, false);
+
+const keyDownHandler = function(event) {
+    scene.keyDownHandler(event)
+}
+window.addEventListener('keydown', keyDownHandler, false);
