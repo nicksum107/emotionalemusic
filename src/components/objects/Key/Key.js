@@ -19,16 +19,20 @@ class Key {
         this.note = note
         this.name = name + String(octave);
 
-        this.sound = new PositionalAudio(audiolist)
+        // need rotating sounds to play multiple of this note at the same time
+        this.sounds = new Array(5)
         
         const audioLoader = new AudioLoader()
-        // TODO: get octave 2
-        if (octave > 2) {
-            // console.log('/src/notes/'+name+String(octave)+'.mp3')
-            audioLoader.load('/src/components/sounds/notes/'+name+String(octave)+'.mp3', function(buffer){
-                k.sound.setBuffer(buffer)
-                k.sound.setRefDistance(20)
-            })
+        for (let i = 0; i < this.sounds.length; i++) {
+            this.sounds[i] = new PositionalAudio(audiolist)
+            // TODO: get more octaves
+            if (octave > 2) {
+                // console.log('/src/notes/'+name+String(octave)+'.mp3')
+                audioLoader.load('/src/components/sounds/notes/'+name+String(octave)+'.mp3', function(buffer){
+                    k.sounds[i].setBuffer(buffer)
+                    k.sounds[i].setRefDistance(20)
+                })
+            }
         }
         // TODO: add constraints so that the key doesn't go flying (on bottom and top)
         // TODO: add spring
@@ -60,14 +64,21 @@ class Key {
             this.previous = this.mesh.position
             return
         }
-        if (this.mesh.position.y < this.playY && !this.sound.isPlaying ) {
-            this.playsound()
-        }
+        
         let deltaT = (timeStamp-this.prevTime)/1000 // ms
         this.prevTime = timeStamp
         
         let offset = new Vector3()
         let diff = new Vector3().add(this.mesh.position).sub(this.previous).add(this.addnVelocity)
+        
+        // play sound when derivative passes
+        if (this.previous.y > this.playY && 
+            this.mesh.position.y < this.playY) {
+            // todo: change sound volume depending on velocity
+            // velocity = diff / deltaT
+            this.playsound()
+        }
+        
         this.previous = new Vector3().add(this.mesh.position)
 
         offset.add(diff.multiplyScalar(1-DAMPING)).add(this.forces.multiplyScalar(deltaT * deltaT / this.mass))
@@ -77,9 +88,6 @@ class Key {
             offset = new Vector3()
         }
 
-        // if (this.mesh.position.y < -10) {
-        //     console.log(this.forces)
-        // }
         this.forces = new Vector3()
         this.mesh.position.add(offset)
 
@@ -91,7 +99,14 @@ class Key {
         }
     }
     playsound() {
-        this.sound.play()
+        
+        // !this.sound.isPlaying
+        for (let s of this.sounds){ 
+            if (!s.isPlaying) {
+                s.play()
+                break 
+            }
+        }        
     }
 
     // update the velocity of the key given the incoming mass and velocity
@@ -227,7 +242,9 @@ class Keys extends Group {
         }
         for (let k of this.keys) {            
             this.add(k.mesh)
-            k.mesh.add(k.sound)
+            for (let s of k.sounds) {
+                k.mesh.add(s)
+            }
             parent.addToUpdateList(k)
         }
     }
