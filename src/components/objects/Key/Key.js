@@ -70,13 +70,12 @@ class Key {
         
         let offset = new Vector3()
         let diff = new Vector3().add(this.mesh.position).sub(this.previous).add(this.addnVelocity)
-        
+        this.addnVelocity = new Vector3()
         // play sound when derivative passes
         if (this.previous.y > this.playY && 
             this.mesh.position.y < this.playY) {
-            // todo: change sound volume depending on velocity
-            // velocity = diff / deltaT
-            this.playsound()
+            let velocity = new Vector3().add(diff).divideScalar(deltaT)
+            this.playsound(velocity)
         }
         
         this.previous = new Vector3().add(this.mesh.position)
@@ -98,11 +97,14 @@ class Key {
             this.mesh.position.y = this.minY
         }
     }
-    playsound() {
-        
-        // !this.sound.isPlaying
+    playsound(velocity) {
+        // velocity = -6 = 1
+        // change sound volume wrt velocity
+        // let scaledvel = -1 * velocity.y - 5 incorrect
         for (let s of this.sounds){ 
             if (!s.isPlaying) {
+                // volume goes from 0 to 20 without sounding bad
+                // console.log(scaledvel, s.getVolume())
                 s.play()
                 break 
             }
@@ -252,7 +254,9 @@ class Keys extends Group {
         for (let k of this.keys) {
             if (k.name == key) {
                 // k.playsound()
-                k.mesh.position.sub(new Vector3(0,0.15,0))
+                // k.mesh.position.sub(new Vector3(0,0.15,0))
+                // impart a small velocity to play the note
+                k.addnVelocity.add(new Vector3(0,-0.15,0))
             }
         }
     }
