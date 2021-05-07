@@ -61,3 +61,4 @@ const keyDownHandler = function(event) {
     scene.keyDownHandler(event)
 }
 window.addEventListener('keydown', keyDownHandler, false);
+

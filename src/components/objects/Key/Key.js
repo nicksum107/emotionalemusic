@@ -1,13 +1,17 @@
 import { BoxGeometry } from 'three';
 import { MeshBasicMaterial } from 'three';
 import { AudioLoader } from 'three';
+import { Plane } from 'three';
 import { PositionalAudio } from 'three';
 import { Vector3 } from 'three';
 import { Mesh } from 'three';
 import { Group } from 'three';
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import MODEL from './model.gltf';
-
+const GRAVITY = -1
+const K = 4
+const DAMPING = 0.4
+const EPS = 0.00001
 class Key {
     constructor(octave, note, name, audiolist) {
         let k = this 
@@ -28,25 +32,72 @@ class Key {
         }
         // TODO: add constraints so that the key doesn't go flying (on bottom and top)
         // TODO: add spring
-        this.forces = new Vector3(0,-1, 0)
+        this.forces = new Vector3(0, GRAVITY, 0)
+        this.addnVelocity = new Vector3() // velocity from collisions
+        // this.previous = new Vector3()
+
+        this.prevTime = -1
+        this.mass = 1.0
+
     }
     updateForces() {
         // update all forces on the key
+        this.forces = new Vector3(0, GRAVITY, 0)
+
+        let vab = new Vector3().add(this.restPosition).sub(this.mesh.position)
+
+        this.forces.add(vab.multiplyScalar(1/2 * K))
+
+        if (this.forces.length() < EPS) {
+            this.forces = new Vector3()
+        }
     }
-    update() {
+    update(timeStamp) {
         this.updateForces()
+
+        if (this.prevTime == -1) {
+            this.prevTime = timeStamp 
+            this.previous = this.mesh.position
+        }
+        if (this.mesh.position.y < this.playY && !this.sound.isPlaying ) {
+            this.playsound()
+        }
+        let deltaT = (timeStamp-this.prevTime)/1000 // ms
         
-        // simulation here, update based on forces
-        // see a5, simply move this.mesh based on it, etc. 
+        let offset = new Vector3()
+        let diff = new Vector3().add(this.mesh.position).sub(this.previous).add(this.addnVelocity)
+        this.previous = new Vector3().add(this.mesh.position)
+
+        offset.add(diff.multiplyScalar(1-DAMPING)).add(this.forces.multiplyScalar(deltaT * deltaT / this.mass))
+        
+        // floating point weirdness
+        if (offset.length() < EPS) {
+            offset = new Vector3()
+        }
+
+        // if (this.mesh.position.y < -10) {
+        //     console.log(this.forces)
+        // }
+        this.forces = new Vector3()
+        this.mesh.position.add(offset)
+
+        // clamp the y coordinate 
+        if (this.mesh.position.y >= this.maxY) {
+            this.mesh.position.y = this.maxY 
+        } else if (this.mesh.position.y <= this.minY) {
+            this.mesh.position.y = this.minY
+        }
+
         // make sure not to go past the boundaries on bottom/top 
+
     }
     playsound() {
         this.sound.play()
     }
-    // collision with a sphere
+
+    // update the velocity of the key given the incoming mass and velocity
     collision(incVelocity, incMass) {
-        // set a flag so that on the next update we will put some forces?
-        // or do the update to the velocity here based on elastic colision? 
+        // do the update to the velocity here based on elastic colision? 
         // not sure what to do
         // assume collisions only give force in the y direction 
     }
@@ -79,6 +130,10 @@ class BlackKey extends Key {
             default:
                 console.log('not black key')            
         }
+        this.restPosition = new Vector3().add(this.mesh.position).add(new Vector3(0,1,0))
+        this.maxY = this.mesh.position.y 
+        this.playY = this.mesh.position.y - 0.05
+        this.minY = this.mesh.position.y - 0.1
     }
 }
 class WhiteKey extends Key {
@@ -112,6 +167,10 @@ class WhiteKey extends Key {
             default:
                 console.log('not white key')   
         }
+        this.restPosition = new Vector3().add(this.mesh.position).add(new Vector3(0,1,0))
+        this.maxY = this.mesh.position.y 
+        this.playY = this.mesh.position.y - 0.05
+        this.minY = this.mesh.position.y - 0.1
     } 
 }
 
@@ -122,22 +181,23 @@ class Keys extends Group {
         this.keys = new Array(48) // to do 48
 
         this.position.add(new Vector3(-2.35, 4.92, -0.54))
-        const cubeA = new Mesh(
-            new BoxGeometry(1.21, 0.15, 0.25),
-            new MeshBasicMaterial({ color: 0xff0000 }))
-        console.log(cubeA.geometry.parameters.width)
-        cubeA.position.add(new Vector3(cubeA.geometry.parameters.width / 2, cubeA.geometry.parameters.height / 2, cubeA.geometry.parameters.depth / 2))
+        // const cubeA = new Mesh(
+        //     new BoxGeometry(1.21, 0.15, 0.25),
+        //     new MeshBasicMaterial({ color: 0xff0000 }))
+        // console.log(cubeA.geometry.parameters.width)
+        // cubeA.position.add(new Vector3(cubeA.geometry.parameters.width / 2, cubeA.geometry.parameters.height / 2, cubeA.geometry.parameters.depth / 2))
 
-        this.add(cubeA)
+        // this.add(cubeA)
 
-        const cubeB = new Mesh(
-            new BoxGeometry(0.7, 0.25, 0.2),
-            new MeshBasicMaterial({ color: 0x00ff00 })
-        )
-        this.add(cubeB)
-        cubeB.position.add(new Vector3(cubeB.geometry.parameters.width / 2, cubeB.geometry.parameters.height / 2, cubeB.geometry.parameters.depth / 2))
-        cubeB.position.add(new Vector3(cubeA.geometry.parameters.width - 0.7 + 0.01, 0, 0.15))
-        cubeB.position.add(new Vector3(0, 0, 1.89))
+        // const cubeB = new Mesh(
+        //     new BoxGeometry(0.7, 0.25, 0.2),
+        //     new MeshBasicMaterial({ color: 0x00ff00 })
+        // )
+        // this.add(cubeB)
+        // cubeB.position.add(new Vector3(cubeB.geometry.parameters.width / 2, cubeB.geometry.parameters.height / 2, cubeB.geometry.parameters.depth / 2))
+        // cubeB.position.add(new Vector3(cubeA.geometry.parameters.width - 0.7 + 0.01, 0, 0.15))
+        // cubeB.position.add(new Vector3(0, 0, 1.89))
+
         // instantiate each key
         console.log(this.keys)
         for (let i = 0; i < this.keys.length; i++) {
@@ -191,7 +251,8 @@ class Keys extends Group {
     playKey(key) {
         for (let k of this.keys) {
             if (k.name == key) {
-                k.playsound()
+                // k.playsound()
+                k.mesh.position.sub(new Vector3(0,0.15,0))
             }
         }
     }
