@@ -8,9 +8,9 @@ import { Mesh } from 'three';
 import { Group } from 'three';
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import MODEL from './model.gltf';
-const GRAVITY = -1
-const K = 4
-const DAMPING = 0.4
+const GRAVITY = -0.5
+const K = 1.5
+const DAMPING = 0.01
 const EPS = 0.00001
 class Key {
     constructor(octave, note, name, audiolist) {
@@ -46,7 +46,7 @@ class Key {
 
         let vab = new Vector3().add(this.restPosition).sub(this.mesh.position)
 
-        this.forces.add(vab.multiplyScalar(1/2 * K))
+        this.forces.add(vab.multiplyScalar(K))
 
         if (this.forces.length() < EPS) {
             this.forces = new Vector3()
@@ -58,11 +58,13 @@ class Key {
         if (this.prevTime == -1) {
             this.prevTime = timeStamp 
             this.previous = this.mesh.position
+            return
         }
         if (this.mesh.position.y < this.playY && !this.sound.isPlaying ) {
             this.playsound()
         }
         let deltaT = (timeStamp-this.prevTime)/1000 // ms
+        this.prevTime = timeStamp
         
         let offset = new Vector3()
         let diff = new Vector3().add(this.mesh.position).sub(this.previous).add(this.addnVelocity)
@@ -87,9 +89,6 @@ class Key {
         } else if (this.mesh.position.y <= this.minY) {
             this.mesh.position.y = this.minY
         }
-
-        // make sure not to go past the boundaries on bottom/top 
-
     }
     playsound() {
         this.sound.play()
@@ -181,22 +180,6 @@ class Keys extends Group {
         this.keys = new Array(48) // to do 48
 
         this.position.add(new Vector3(-2.35, 4.92, -0.54))
-        // const cubeA = new Mesh(
-        //     new BoxGeometry(1.21, 0.15, 0.25),
-        //     new MeshBasicMaterial({ color: 0xff0000 }))
-        // console.log(cubeA.geometry.parameters.width)
-        // cubeA.position.add(new Vector3(cubeA.geometry.parameters.width / 2, cubeA.geometry.parameters.height / 2, cubeA.geometry.parameters.depth / 2))
-
-        // this.add(cubeA)
-
-        // const cubeB = new Mesh(
-        //     new BoxGeometry(0.7, 0.25, 0.2),
-        //     new MeshBasicMaterial({ color: 0x00ff00 })
-        // )
-        // this.add(cubeB)
-        // cubeB.position.add(new Vector3(cubeB.geometry.parameters.width / 2, cubeB.geometry.parameters.height / 2, cubeB.geometry.parameters.depth / 2))
-        // cubeB.position.add(new Vector3(cubeA.geometry.parameters.width - 0.7 + 0.01, 0, 0.15))
-        // cubeB.position.add(new Vector3(0, 0, 1.89))
 
         // instantiate each key
         console.log(this.keys)
