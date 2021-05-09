@@ -82,12 +82,14 @@ class MusicScene extends Scene {
         // spawn a marble to play the note
         for (let k of this.keys.keys) {
             if (k.name == toplay) {
-                let marblePos = k.mesh.position.clone().add(new Vector3(0,1,0)).add(this.keys.position)
+                let marblePos = k.mesh.position.clone().add(new Vector3(0,3,0)).add(this.keys.position)
                 if (k.keyType()==="white") {
-                    
                     marblePos.add(new Vector3(-0.4,0,0))
+                } else {
+
                 }
-                let marbleVel = new Vector3(0, 0, 0)
+                marblePos.add(new Vector3(1,0,0))
+                let marbleVel = new Vector3(-1, 0, 0)
                 const m = new Marble(this, 0.1, 1, marblePos, marbleVel)
             }
         }

@@ -84,7 +84,7 @@ class Marble extends Object3D {
 
     // checks if there is a collision with objects
     checkCollision() {
-        // for now just check collisiosn with known objects (no piano percussion yet)
+        // for now just check collisiosn with known objects
         let localpos = this.mesh.position.clone().sub(this.scene.keys.position)
         for (let k of this.scene.keys.keys) {
             k.mesh.geometry.computeBoundingBox()
@@ -98,13 +98,16 @@ class Marble extends Object3D {
 
                 this.mesh.position.y = keytopy + EPS + this.scene.keys.position.y +this.radius
                 k.collision(this.prevVelocity, this.mass)
-                this.prevVelocity.setY(5)
+                this.prevVelocity.setY(-1 * this.prevVelocity.y * 0.5)
             }
         }
+        // i think it woudl be cool to do 
     }
 
     // update the velocity of the key given the incoming mass and velocity
     collision(incVelocity, incMass) {
+        //TODO: must make incoming object much much greater mass so that we have good bouncing motion.
+
         // do the update to the velocity here based on elastic colision? 
         // not sure what to do
         // assume collisions only give force in the y direction 

@@ -115,7 +115,7 @@ class Key {
     // update the velocity of the key given the incoming mass and velocity
     collision(incVelocity, incMass) {
         // this.playsound(new Vector3(0,-0.5,0))
-        this.addnVelocity.add(new Vector3(0,-3,0))
+        this.addnVelocity.add(new Vector3(0,-2.5,0))
 
         // do the update to the velocity here based on elastic colision? 
         // not sure what to do
@@ -139,13 +139,13 @@ class BlackKey extends Key {
                 this.mesh.position.add(new Vector3(0,0,0.28))
                 break
             case 6: 
-                this.mesh.position.add(new Vector3(0,0,0.81))
+                this.mesh.position.add(new Vector3(0,0,0.82))
                 break 
             case 8:
-                this.mesh.position.add(new Vector3(0,0,0.27+0.81))
+                this.mesh.position.add(new Vector3(0,0,0.27+0.82))
                 break
             case 10: 
-                this.mesh.position.add(new Vector3(0,0,0.27*2+0.81))
+                this.mesh.position.add(new Vector3(0,0,0.27*2+0.82))
                 break
             default:
                 console.log('not black key')            
