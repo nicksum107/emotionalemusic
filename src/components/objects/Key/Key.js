@@ -9,7 +9,7 @@ import { Group } from 'three';
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import MODEL from './model.gltf';
 const GRAVITY = -0.5
-const K = 1.5
+const K = 25
 const DAMPING = 0.01
 const EPS = 0.00001
 class Key {
@@ -26,27 +26,31 @@ class Key {
         for (let i = 0; i < this.sounds.length; i++) {
             this.sounds[i] = new PositionalAudio(audiolist)
             // TODO: get more octaves
-            if (octave > 2) {
+            if (octave >= 2 && octave <= 5) {
                 // console.log('/src/notes/'+name+String(octave)+'.mp3')
                 audioLoader.load('/src/components/sounds/notes/'+name+String(octave)+'.mp3', function(buffer){
                     k.sounds[i].setBuffer(buffer)
                     k.sounds[i].setRefDistance(20)
+                    // k.sounds[i].detune = -1200
+                    // k.sounds[i].setPlaybackRate(2)
+                    k.sounds[i].duration = 0.7 // Cut off sound at 0.7 seconds
                 })
             }
         }
+        this.prevTime = -1
+        this.mass = 1.0
+
         // TODO: add constraints so that the key doesn't go flying (on bottom and top)
         // TODO: add spring
-        this.forces = new Vector3(0, GRAVITY, 0)
+        this.forces = new Vector3(0, GRAVITY * this.mass, 0)
         this.addnVelocity = new Vector3() // velocity from collisions
         // this.previous = new Vector3()
 
-        this.prevTime = -1
-        this.mass = 1.0
 
     }
     updateForces() {
         // update all forces on the key
-        this.forces = new Vector3(0, GRAVITY, 0)
+        this.forces = new Vector3(0, GRAVITY * this.mass, 0)
 
         let vab = new Vector3().add(this.restPosition).sub(this.mesh.position)
 
@@ -69,7 +73,7 @@ class Key {
         this.prevTime = timeStamp
         
         let offset = new Vector3()
-        let diff = new Vector3().add(this.mesh.position).sub(this.previous).add(this.addnVelocity)
+        let diff = new Vector3().add(this.mesh.position).sub(this.previous).add(this.addnVelocity.multiplyScalar(deltaT))
         this.addnVelocity = new Vector3()
         // play sound when derivative passes
         if (this.previous.y > this.playY && 
@@ -256,7 +260,7 @@ class Keys extends Group {
                 // k.playsound()
                 // k.mesh.position.sub(new Vector3(0,0.15,0))
                 // impart a small velocity to play the note
-                k.addnVelocity.add(new Vector3(0,-0.15,0))
+                k.addnVelocity.add(new Vector3(0,-15,0))
             }
         }
     }
