@@ -17,7 +17,8 @@ class MusicScene extends Scene {
             gui: new Dat.GUI(), // Create GUI for scene
             rotationSpeed: 0,
             updateList: [],
-            octave: 3
+            octave: 3,
+            directlyPlay: false,
         };
 
         this.camera = camera
@@ -32,10 +33,10 @@ class MusicScene extends Scene {
         const piano = new Piano()
         const lights = new BasicLights();
         this.keys = new Keys(this)
-        // this.add(piano, lights, this.keys);
+        this.add(piano, lights, this.keys);
 
         // Add marble
-        const marble = new Marble(this, 0.2, 1, new Vector3(0, 0, 0), new Vector3(0, 1, 0));
+        // const marble = new Marble(this, 0.1, 1, new Vector3(0, 0, 0), new Vector3(0, 1, 0));
         // const geometry = new SphereGeometry(0.1, 32, 32);
         // const material = new MeshBasicMaterial({ color: 0x3300aa });
         // const sphere = new Mesh(geometry, material);
@@ -45,6 +46,8 @@ class MusicScene extends Scene {
         this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
         
         this.state.gui.add(this.state, 'octave', 2, 5, 1);
+
+        this.state.gui.add(this.state, 'directlyPlay', )
     }
 
     addToUpdateList(object) {
@@ -71,7 +74,23 @@ class MusicScene extends Scene {
         }
         toplay += String(this.state.octave)
 
-        this.keys.playKey(toplay)
+        if (this.state.directlyPlay){
+            this.keys.playKey(toplay)
+            return 
+        } 
+        
+        // spawn a marble to play the note
+        for (let k of this.keys.keys) {
+            if (k.name == toplay) {
+                let marblePos = k.mesh.position.clone().add(new Vector3(0,1,0)).add(this.keys.position)
+                if (k.keyType()==="white") {
+                    
+                    marblePos.add(new Vector3(-0.4,0,0))
+                }
+                let marbleVel = new Vector3(0, 0, 0)
+                const m = new Marble(this, 0.1, 1, marblePos, marbleVel)
+            }
+        }
     }
 }
 

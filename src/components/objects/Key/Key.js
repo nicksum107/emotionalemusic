@@ -20,12 +20,11 @@ class Key {
         this.name = name + String(octave);
 
         // need rotating sounds to play multiple of this note at the same time
-        this.sounds = new Array(5)
+        this.sounds = new Array(15)
         
         const audioLoader = new AudioLoader()
         for (let i = 0; i < this.sounds.length; i++) {
             this.sounds[i] = new PositionalAudio(audiolist)
-            // TODO: get more octaves
             if (octave >= 2 && octave <= 5) {
                 // console.log('/src/notes/'+name+String(octave)+'.mp3')
                 audioLoader.load('/src/components/sounds/notes/'+name+String(octave)+'.mp3', function(buffer){
@@ -40,13 +39,8 @@ class Key {
         this.prevTime = -1
         this.mass = 1.0
 
-        // TODO: add constraints so that the key doesn't go flying (on bottom and top)
-        // TODO: add spring
         this.forces = new Vector3(0, GRAVITY * this.mass, 0)
         this.addnVelocity = new Vector3() // velocity from collisions
-        // this.previous = new Vector3()
-
-
     }
     updateForces() {
         // update all forces on the key
@@ -105,10 +99,13 @@ class Key {
         // velocity = -6 = 1
         // change sound volume wrt velocity
         // let scaledvel = -1 * velocity.y - 5 incorrect
+        // console.log(velocity)
         for (let s of this.sounds){ 
             if (!s.isPlaying) {
                 // volume goes from 0 to 20 without sounding bad
                 // console.log(scaledvel, s.getVolume())
+
+                s.setVolume(-1 * velocity.y * 6)
                 s.play()
                 break 
             }
@@ -117,6 +114,9 @@ class Key {
 
     // update the velocity of the key given the incoming mass and velocity
     collision(incVelocity, incMass) {
+        // this.playsound(new Vector3(0,-0.5,0))
+        this.addnVelocity.add(new Vector3(0,-3,0))
+
         // do the update to the velocity here based on elastic colision? 
         // not sure what to do
         // assume collisions only give force in the y direction 
@@ -155,6 +155,9 @@ class BlackKey extends Key {
         this.playY = this.mesh.position.y - 0.05
         this.minY = this.mesh.position.y - 0.1
     }
+    keyType() {
+        return "black"
+    }
 }
 class WhiteKey extends Key {
     constructor(octave, note, name, audiolist) {
@@ -192,13 +195,16 @@ class WhiteKey extends Key {
         this.playY = this.mesh.position.y - 0.05
         this.minY = this.mesh.position.y - 0.1
     } 
+    keyType() {
+        return "white"
+    }
 }
 
 class Keys extends Group {
     constructor(parent) {
         super()
 
-        this.keys = new Array(48) // to do 48
+        this.keys = new Array(48) 
 
         this.position.add(new Vector3(-2.35, 4.92, -0.54))
 
@@ -252,7 +258,10 @@ class Keys extends Group {
                 k.mesh.add(s)
             }
             parent.addToUpdateList(k)
+
+            k.mesh.geometry.computeBoundingBox()
         }
+
     }
     playKey(key) {
         for (let k of this.keys) {
@@ -260,7 +269,9 @@ class Keys extends Group {
                 // k.playsound()
                 // k.mesh.position.sub(new Vector3(0,0.15,0))
                 // impart a small velocity to play the note
-                k.addnVelocity.add(new Vector3(0,-15,0))
+                // velocity of -2.05 is the smallest and -4 the largest
+                // from rest position
+                k.addnVelocity.add(new Vector3(0,-3,0))
             }
         }
     }

@@ -17,11 +17,12 @@ class Marble extends Object3D {
         let m = this 
         
         // Create mesh
+        this.radius = radius
         const geometry = new SphereGeometry(radius, WIDTH_SEGMENTS, HEIGHT_SEGMENTS);
         const material = new MeshBasicMaterial({ color: 0x444444 });
         this.mesh = new Mesh(geometry, material);
         this.mesh.position.copy(initialPos);
-        this.position.copy(initialPos);
+        // this.position.copy(initialPos);
         parent.add(this.mesh)
         
         // Initialize physical info
@@ -31,9 +32,11 @@ class Marble extends Object3D {
         this.prevTime = -1
         this.mass = mass
 
+        this.scene = parent 
+
         // Add to parent's update list
         parent.addToUpdateList(this);
-        console.log(this)
+        // console.log(this)
     }
     updateForces() {
         // update all forces on the marble
@@ -75,20 +78,29 @@ class Marble extends Object3D {
             this.prevVelocity.setY(-this.prevVelocity.y * 0.95)
         }
 
+        this.checkCollision()
         // TODO: Delete if out of bounds
     }
-    playsound(velocity) {
-        // velocity = -6 = 1
-        // change sound volume wrt velocity
-        // let scaledvel = -1 * velocity.y - 5 incorrect
-        for (let s of this.sounds){ 
-            if (!s.isPlaying) {
-                // volume goes from 0 to 20 without sounding bad
-                // console.log(scaledvel, s.getVolume())
-                s.play()
-                break 
+
+    // checks if there is a collision with objects
+    checkCollision() {
+        // for now just check collisiosn with known objects (no piano percussion yet)
+        let localpos = this.mesh.position.clone().sub(this.scene.keys.position)
+        for (let k of this.scene.keys.keys) {
+            k.mesh.geometry.computeBoundingBox()
+            let bb = k.mesh.geometry.boundingBox.clone()
+            bb.expandByScalar(EPS)
+            
+            let keytopy = bb.max.y + k.mesh.position.y
+            if (localpos.y - this.radius < keytopy && 
+                localpos.x < bb.max.x + k.mesh.position.x && localpos.x > bb.min.x + k.mesh.position.x && 
+                localpos.z < bb.max.z + k.mesh.position.z && localpos.z > bb.min.z + k.mesh.position.z) { 
+
+                this.mesh.position.y = keytopy + EPS + this.scene.keys.position.y +this.radius
+                k.collision(this.prevVelocity, this.mass)
+                this.prevVelocity.setY(5)
             }
-        }        
+        }
     }
 
     // update the velocity of the key given the incoming mass and velocity
