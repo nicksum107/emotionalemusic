@@ -3,7 +3,7 @@
   "repository": "emotionalemusic",
   "version": "0.1.0",
   "title": "e-Motional e-Music",
-  "description": "SHORT DESCRIPTION OF PROJECT HERE. ONE TO TWO SENTENCES MAX",
+  "description": "A physical simulation of marbles hitting instruments to make music.",
   "keywords": [
     "Princeton",
     "graphics",
