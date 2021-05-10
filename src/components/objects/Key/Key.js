@@ -8,11 +8,11 @@ import { Mesh } from 'three';
 import { Group } from 'three';
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import MODEL from './model.gltf';
-const GRAVITY = -0.5
-const K = 20
+const GRAVITY = -5
+const K = 50
 const DAMPING = 0.01
 const EPS = 0.00001
-const KEY_MASS = 5
+const KEY_MASS = 4.5
 const PLAY_DISTANCE = 0.04;
 class Key {
     constructor(octave, note, name, audiolist) {
