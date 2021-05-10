@@ -57,7 +57,7 @@ class MusicScene extends Scene {
         const interactiveFolder = this.state.gui.addFolder('Interaction and Physics');
         interactiveFolder.add(this.state, 'directlyPlay', );
         interactiveFolder.add(this.state, 'marbleMass', 0.1, 10, 0.1);
-        interactiveFolder.add(this.state, 'marbleRadius', 0.1, 1, 0.1);
+        interactiveFolder.add(this.state, 'marbleRadius', 0.1, 0.5, 0.01);
 
         const marbleFolder = this.state.gui.addFolder('Create Marble');
         marbleFolder.add(this.state, 'Marble x', -5, 5, 0.1);
@@ -119,7 +119,7 @@ class MusicScene extends Scene {
                 if (k.keyType()==="white") {
                     marblePos.add(new Vector3(-0.4,0,0))
                 } else {
-
+                    marblePos.add(new Vector3(0,0,0.01))
                 }
                 marblePos.add(new Vector3(1,0,0))
                 let marbleVel = new Vector3(-1, 0, 0)
