@@ -10,6 +10,7 @@ const DAMPING = 0.01
 const EPS = 0.00001
 const WIDTH_SEGMENTS = 32
 const HEIGHT_SEGMENTS = 32
+const NUM_FLOOR_BOUNCES = 3
 class Marble extends Object3D {
     constructor(parent, radius, mass, initialPos, initialVelocity) {
         super()
@@ -31,6 +32,7 @@ class Marble extends Object3D {
         this.addnVelocity = new Vector3() // velocity from collisions TODO: replace this
         this.prevTime = -1
         this.mass = mass
+        this.floorBounces = 0;
 
         this.scene = parent 
 
@@ -72,14 +74,23 @@ class Marble extends Object3D {
         this.prevVelocity = newVelocity.add(this.addnVelocity);
         this.addnVelocity = new Vector3()
 
-        // For testing - simulates an invisible floor at y = -1
+        // simulates an invisible floor at y = 0
         if (this.mesh.position.y < 0) {
+            this.floorBounces++;
+            // Delete if we hit floor enough times
+            if (this.floorBounces >= NUM_FLOOR_BOUNCES) {
+                this.scene.remove(this.mesh);
+                this.mesh.geometry.dispose();
+                this.mesh.material.dispose();
+                this.scene.removeFromUpdateList(this);
+                return;
+            }
+
             this.mesh.position.setY(0);
             this.prevVelocity.setY(-this.prevVelocity.y * 0.95)
         }
 
         this.checkCollision()
-        // TODO: Delete if out of bounds
     }
 
     // checks if there is a collision with objects

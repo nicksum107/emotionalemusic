@@ -82,6 +82,11 @@ class MusicScene extends Scene {
         this.state.updateList.push(object);
     }
 
+    removeFromUpdateList(object) {
+        const index = this.state.updateList.indexOf(object);
+        this.state.updateList.splice(index, 1);
+    }
+
     update(timeStamp) {
         const { rotationSpeed, updateList } = this.state;
         this.rotation.y  = (rotationSpeed * timeStamp) / 10000;
