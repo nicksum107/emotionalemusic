@@ -64,8 +64,8 @@ class Marble extends Object3D {
         // Update position
         let diff = this.prevVelocity.clone().multiplyScalar(deltaT);
         if (diff.length() < EPS) diff = new Vector3(); // Floating point weirdness
-        this.mesh.position.add(diff)
         this.previous = this.mesh.position.clone()
+        this.mesh.position.add(diff)
 
         // Compute new Velocity
         const newVelocity = this.prevVelocity.clone().add(this.forces.clone().multiplyScalar(deltaT / this.mass))
@@ -73,8 +73,8 @@ class Marble extends Object3D {
         this.addnVelocity = new Vector3()
 
         // For testing - simulates an invisible floor at y = -1
-        if (this.mesh.position.y < -1) {
-            this.mesh.position.setY(-1);
+        if (this.mesh.position.y < 0) {
+            this.mesh.position.setY(0.5);
             this.prevVelocity.setY(-this.prevVelocity.y * 0.95)
         }
 
@@ -92,13 +92,34 @@ class Marble extends Object3D {
             bb.expandByScalar(EPS)
             
             let keytopy = bb.max.y + k.mesh.position.y
+            // Check for collision
             if (localpos.y - this.radius < keytopy && 
                 localpos.x < bb.max.x + k.mesh.position.x && localpos.x > bb.min.x + k.mesh.position.x && 
                 localpos.z < bb.max.z + k.mesh.position.z && localpos.z > bb.min.z + k.mesh.position.z) { 
+                
+                // Compute elastic collision approximation (conservation of momentum and energy)
+                // u -> velocity before, v -> after, 1 -> marble, 2 -> key
+                const m1 = this.mass;
+                const m2 = k.mass;
+                const u1 = this.prevVelocity.y;
+                const u2 = k.prevVelocity.y * 0;
+                const v1 = (m1 - m2) / (m1 + m2) * u1 + (2 * m2) / (m1 + m2) * u2;
+                const v2 = (2 * m1) / (m1 + m2) * u1 + (m2 - m1) / (m1 + m2) * u2;
 
-                this.mesh.position.y = keytopy + EPS + this.scene.keys.position.y +this.radius
-                k.collision(this.prevVelocity, this.mass)
-                this.prevVelocity.setY(-1 * this.prevVelocity.y * 0.5)
+                console.log(m1, m2, u1, u2, v1, v2)
+                // Marble's final velocity in y direction
+                // const b = 2 * marbleM * marbleM * marbleV0;
+                // const a = marbleM * keyM + marbleM * marbleM;
+                // const c = Math.pow(marbleM * marbleV0, 2) - marbleM * keyM * Math.pow(marbleV0, 2);
+                // const marbleVf = (-b + Math.sqrt(b*b - 4*a*c)) / 2*a;
+                // console.log(this.prevVelocity)
+                this.prevVelocity.y = v1
+                // console.log(a, b, c, this.prevVelocity)
+                // this.mesh.position.y = keytopy + EPS + this.scene.keys.position.y + this.radius
+
+                // Key's final velocity
+                // const keyVf = marbleM * (marbleV0 + marbleVf) / keyM;
+                k.collision(new Vector3(0, v2, 0))
             }
         }
         // i think it woudl be cool to do 

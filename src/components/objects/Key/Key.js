@@ -12,6 +12,7 @@ const GRAVITY = -0.5
 const K = 25
 const DAMPING = 0.01
 const EPS = 0.00001
+const KEY_MASS = 1
 class Key {
     constructor(octave, note, name, audiolist) {
         let k = this 
@@ -37,10 +38,11 @@ class Key {
             }
         }
         this.prevTime = -1
-        this.mass = 1.0
+        this.mass = KEY_MASS
 
         this.forces = new Vector3(0, GRAVITY * this.mass, 0)
         this.addnVelocity = new Vector3() // velocity from collisions
+        this.prevVelocity = new Vector3()
     }
     updateForces() {
         // update all forces on the key
@@ -66,33 +68,32 @@ class Key {
         let deltaT = (timeStamp-this.prevTime)/1000 // ms
         this.prevTime = timeStamp
         
-        let offset = new Vector3()
-        let diff = new Vector3().add(this.mesh.position).sub(this.previous).add(this.addnVelocity.multiplyScalar(deltaT))
-        this.addnVelocity = new Vector3()
+        this.prevVelocity.add(this.addnVelocity);
+        // Newton's method
+        let diff = this.prevVelocity.clone().multiplyScalar(deltaT);
+        if (diff.length() < EPS) diff = new Vector3(); // Floating point weirdness
+        this.previous = this.mesh.position.clone()
+        this.mesh.position.add(diff)
+
         // play sound when derivative passes
         if (this.previous.y > this.playY && 
             this.mesh.position.y < this.playY) {
             let velocity = new Vector3().add(diff).divideScalar(deltaT)
             this.playsound(velocity)
         }
-        
-        this.previous = new Vector3().add(this.mesh.position)
 
-        offset.add(diff.multiplyScalar(1-DAMPING)).add(this.forces.multiplyScalar(deltaT * deltaT / this.mass))
-        
-        // floating point weirdness
-        if (offset.length() < EPS) {
-            offset = new Vector3()
-        }
+        // Compute new Velocity
+        const newVelocity = this.prevVelocity.clone().add(this.forces.clone().multiplyScalar(deltaT / this.mass))
+        this.addnVelocity = new Vector3()
 
-        this.forces = new Vector3()
-        this.mesh.position.add(offset)
 
         // clamp the y coordinate 
         if (this.mesh.position.y >= this.maxY) {
             this.mesh.position.y = this.maxY 
+            this.prevVelocity.y = 0;
         } else if (this.mesh.position.y <= this.minY) {
             this.mesh.position.y = this.minY
+            this.prevVelocity.y = 0;
         }
     }
     playsound(velocity) {
@@ -113,9 +114,9 @@ class Key {
     }
 
     // update the velocity of the key given the incoming mass and velocity
-    collision(incVelocity, incMass) {
+    collision(velocity) {
         // this.playsound(new Vector3(0,-0.5,0))
-        this.addnVelocity.add(new Vector3(0,-2.5,0))
+        this.addnVelocity.add(velocity)
 
         // do the update to the velocity here based on elastic colision? 
         // not sure what to do
