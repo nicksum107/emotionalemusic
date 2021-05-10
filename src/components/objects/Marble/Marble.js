@@ -1,5 +1,6 @@
 import { SphereGeometry } from 'three';
 import { MeshBasicMaterial } from 'three';
+import { Raycaster } from 'three';
 import { Vector3 } from 'three';
 import { Mesh } from 'three';
 import { Object3D } from 'three';
@@ -11,12 +12,13 @@ const EPS = 0.00001
 const WIDTH_SEGMENTS = 32
 const HEIGHT_SEGMENTS = 32
 const NUM_FLOOR_BOUNCES = 3
+const NUM_COLLISION_RAYS = 100 
 class Marble extends Object3D {
     constructor(parent, radius, mass, initialPos, initialVelocity) {
         super()
 
-        let m = this 
-        
+        let m = this
+
         // Create mesh
         this.radius = radius
         const geometry = new SphereGeometry(radius, WIDTH_SEGMENTS, HEIGHT_SEGMENTS);
@@ -25,7 +27,7 @@ class Marble extends Object3D {
         this.mesh.position.copy(initialPos);
         // this.position.copy(initialPos);
         parent.add(this.mesh)
-        
+
         // Initialize physical info
         this.forces = new Vector3(0, GRAVITY * this.mass, 0)
         this.prevVelocity = initialVelocity.clone()
@@ -34,7 +36,7 @@ class Marble extends Object3D {
         this.mass = mass
         this.floorBounces = 0;
 
-        this.scene = parent 
+        this.scene = parent
 
         // Add to parent's update list
         parent.addToUpdateList(this);
@@ -55,14 +57,14 @@ class Marble extends Object3D {
         this.updateForces()
 
         if (this.prevTime == -1) {
-            this.prevTime = timeStamp 
+            this.prevTime = timeStamp
             this.previous = this.mesh.position
             return
         }
-        
-        let deltaT = (timeStamp-this.prevTime)/1000 // ms
+
+        let deltaT = (timeStamp - this.prevTime) / 1000 // ms
         this.prevTime = timeStamp
-        
+
         // Update position
         let diff = this.prevVelocity.clone().multiplyScalar(deltaT);
         if (diff.length() < EPS) diff = new Vector3(); // Floating point weirdness
@@ -95,19 +97,23 @@ class Marble extends Object3D {
 
     // checks if there is a collision with objects
     checkCollision() {
-        // for now just check collisiosn with known objects
+        this.checkMeshCollision()
+        return
+        this.checkKeyCollision()
+    }
+    checkKeyCollision() {
         let localpos = this.mesh.position.clone().sub(this.scene.keys.position)
         for (let k of this.scene.keys.keys) {
             k.mesh.geometry.computeBoundingBox()
             let bb = k.mesh.geometry.boundingBox.clone()
             bb.expandByScalar(EPS)
-            
+
             let keytopy = bb.max.y + k.mesh.position.y
             // Check for collision
-            if (localpos.y - this.radius < keytopy && 
-                localpos.x < bb.max.x + k.mesh.position.x && localpos.x > bb.min.x + k.mesh.position.x && 
-                localpos.z < bb.max.z + k.mesh.position.z && localpos.z > bb.min.z + k.mesh.position.z) { 
-                
+            if (localpos.y - this.radius < keytopy &&
+                localpos.x < bb.max.x + k.mesh.position.x && localpos.x > bb.min.x + k.mesh.position.x &&
+                localpos.z < bb.max.z + k.mesh.position.z && localpos.z > bb.min.z + k.mesh.position.z) {
+
                 // Compute elastic collision approximation (conservation of momentum and energy)
                 // u -> velocity before, v -> after, 1 -> marble, 2 -> key
                 const m1 = this.mass;
@@ -131,21 +137,43 @@ class Marble extends Object3D {
                 // const keyVf = marbleM * (marbleV0 + marbleVf) / keyM;
                 k.collision(new Vector3(0, v2, 0))
 
-                // Bandaid solution for incorrectly calculating multiple collisions
-                break;
+                break; 
             }
         }
-        // i think it woudl be cool to do 
     }
 
-    // update the velocity of the key given the incoming mass and velocity
-    collision(incVelocity, incMass) {
-        //TODO: must make incoming object much much greater mass so that we have good bouncing motion.
+    // sigma = 1 
+    gaussian(x) {
+        return Math.pow(Math.E,-Math.pow(x,2)/2)/Math.sqrt(2*Math.PI)
+    }
+    sampleDirection() {
+        let x = this.gaussian(Math.random() * 6 - 3)
+        let y = this.gaussian(Math.random() * 6 - 3)
+        let z = this.gaussian(Math.random() * 6 - 3)
+        
+        return new Vector3(x,y,z).normalize()
 
-        // do the update to the velocity here based on elastic colision? 
-        // not sure what to do
-        // assume collisions only give force in the y direction 
+    }
+    checkMeshCollision() {
+        let origin = this.mesh.position.clone() 
+
+        for (let i = 0; i < NUM_COLLISION_RAYS; i++) {
+            let dir = this.sampleDirection()
+            // get all collisions of this ray until the radius
+            let ray = new Raycaster(origin, dir.normalize())
+            var result = ray.intersectObjects(this.scene.collidablemeshes)
+            
+            // console.log(dir)
+            if (result.length > 0) {
+                console.log('found')
+                // bounce across the normal
+                this.prevVelocity.reflect(result[0].face.normal)
+                this.prevVelocity.multiplyScalar(0.95)
+                return 
+            }
+        }
     }
 }
+
 
 export default Marble

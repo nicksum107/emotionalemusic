@@ -76,6 +76,10 @@ class MusicScene extends Scene {
             }
         };
         marbleFolder.add(createMarbleButton, 'createMarble')
+
+
+        this.collidablemeshes = [piano] // piano is the only collidable mesh at the moment
+        // console.log(this.keys.keys)
     }
 
     addToUpdateList(object) {
@@ -90,7 +94,6 @@ class MusicScene extends Scene {
     update(timeStamp) {
         const { rotationSpeed, updateList } = this.state;
         this.rotation.y  = (rotationSpeed * timeStamp) / 10000;
-
         // Call update for each object in the updateList
         for (const obj of updateList) {
             obj.update(timeStamp * SIM_SPEED);
@@ -101,6 +104,11 @@ class MusicScene extends Scene {
         console.log(event)
 
         let toplay = String(event.key).toLowerCase()
+        if (toplay == "p") {
+            let marblePos = new Vector3(1,10,1)
+            const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, new Vector3(0,0,0))
+            return 
+        }
         if (event.shiftKey) {
             toplay.toLowerCase()
             toplay+="-"

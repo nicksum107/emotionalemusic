@@ -1,6 +1,7 @@
 import { BoxGeometry } from 'three';
 import { MeshBasicMaterial } from 'three';
 import { AudioLoader } from 'three';
+import { Object3D } from 'three';
 import { Plane } from 'three';
 import { PositionalAudio } from 'three';
 import { Vector3 } from 'three';
@@ -8,14 +9,15 @@ import { Mesh } from 'three';
 import { Group } from 'three';
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import MODEL from './model.gltf';
-const GRAVITY = -0.5
-const K = 20
+const GRAVITY = -5
+const K = 50
 const DAMPING = 0.01
 const EPS = 0.00001
-const KEY_MASS = 5
+const KEY_MASS = 4.5
 const PLAY_DISTANCE = 0.04;
-class Key {
+class Key extends Object3D {
     constructor(octave, note, name, audiolist) {
+        super()
         let k = this 
         this.octave = octave
         this.note = note
