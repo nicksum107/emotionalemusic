@@ -6,6 +6,64 @@ import { PositionalAudio } from 'three';
 import { Vector3 } from 'three';
 import { Mesh } from 'three';
 import { Group } from 'three';
+
+// Yucky webpack imports
+// A
+import a2 from '../../sounds/notes/a2.mp3'
+import as2 from '../../sounds/notes/a-2.mp3'
+import a3 from '../../sounds/notes/a3.mp3'
+import as3 from '../../sounds/notes/a-3.mp3'
+import a4 from '../../sounds/notes/a4.mp3'
+import as4 from '../../sounds/notes/a-4.mp3'
+import a5 from '../../sounds/notes/a5.mp3'
+import as5 from '../../sounds/notes/a-5.mp3'
+// B
+import b2 from '../../sounds/notes/b2.mp3'
+import b3 from '../../sounds/notes/b3.mp3'
+import b4 from '../../sounds/notes/b4.mp3'
+import b5 from '../../sounds/notes/b5.mp3'
+// C
+import c2 from '../../sounds/notes/c2.mp3'
+import cs2 from '../../sounds/notes/c-2.mp3'
+import c3 from '../../sounds/notes/c3.mp3'
+import cs3 from '../../sounds/notes/c-3.mp3'
+import c4 from '../../sounds/notes/c4.mp3'
+import cs4 from '../../sounds/notes/c-4.mp3'
+import c5 from '../../sounds/notes/c5.mp3'
+import cs5 from '../../sounds/notes/c-5.mp3'
+// D
+import d2 from '../../sounds/notes/d2.mp3'
+import ds2 from '../../sounds/notes/d-2.mp3'
+import d3 from '../../sounds/notes/d3.mp3'
+import ds3 from '../../sounds/notes/d-3.mp3'
+import d4 from '../../sounds/notes/d4.mp3'
+import ds4 from '../../sounds/notes/d-4.mp3'
+import d5 from '../../sounds/notes/d5.mp3'
+import ds5 from '../../sounds/notes/d-5.mp3'
+// E
+import e2 from '../../sounds/notes/e2.mp3'
+import e3 from '../../sounds/notes/e3.mp3'
+import e4 from '../../sounds/notes/e4.mp3'
+import e5 from '../../sounds/notes/e5.mp3'
+// F
+import f2 from '../../sounds/notes/f2.mp3'
+import fs2 from '../../sounds/notes/f-2.mp3'
+import f3 from '../../sounds/notes/f3.mp3'
+import fs3 from '../../sounds/notes/f-3.mp3'
+import f4 from '../../sounds/notes/f4.mp3'
+import fs4 from '../../sounds/notes/f-4.mp3'
+import f5 from '../../sounds/notes/f5.mp3'
+import fs5 from '../../sounds/notes/f-5.mp3'
+// G
+import g2 from '../../sounds/notes/g2.mp3'
+import gs2 from '../../sounds/notes/g-2.mp3'
+import g3 from '../../sounds/notes/g3.mp3'
+import gs3 from '../../sounds/notes/g-3.mp3'
+import g4 from '../../sounds/notes/g4.mp3'
+import gs4 from '../../sounds/notes/g-4.mp3'
+import g5 from '../../sounds/notes/g5.mp3'
+import gs5 from '../../sounds/notes/g-5.mp3'
+
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import MODEL from './model.gltf';
 const GRAVITY = -5
@@ -14,6 +72,63 @@ const DAMPING = 0.01
 const EPS = 0.00001
 const KEY_MASS = 4.5
 const PLAY_DISTANCE = 0.04;
+// Webpack stuff
+const KEY_NAME_TO_FILENAME_MAP = {
+    'a2': a2,
+    'a-2': as2,
+    'a3': a3,
+    'a-3': as3,
+    'a4': a4,
+    'a-4': as4,
+    'a5': a5,
+    'a-5': as5,
+    // B
+    'b2': b2,
+    'b3': b3,
+    'b4': b4,
+    'b5': b5,
+    // C
+    'c2': c2,
+    'c-2': cs2,
+    'c3': c3,
+    'c-3': cs3,
+    'c4': c4,
+    'c-4': cs4,
+    'c5': c5,
+    'c-5': cs5,
+    // D
+    'd2': d2,
+    'd-2': ds2,
+    'd3': d3,
+    'd-3': ds3,
+    'd4': d4,
+    'd-4': ds4,
+    'd5': d5,
+    'd-5': ds5,
+    // E
+    'e2': e2,
+    'e3': e3,
+    'e4': e4,
+    'e5': e5,
+    // F
+    'f2': f2,
+    'f-2': fs2,
+    'f3': f3,
+    'f-3': fs3,
+    'f4': f4,
+    'f-4': fs4,
+    'f5': f5,
+    'f-5': fs5,
+    // G
+    'g2': g2,
+    'g-2': gs2,
+    'g3': g3,
+    'g-3': gs3,
+    'g4': g4,
+    'g-4': gs4,
+    'g5': g5,
+    'g-5': gs5,
+}
 class Key {
     constructor(octave, note, name, audiolist) {
         let k = this 
@@ -29,7 +144,7 @@ class Key {
             this.sounds[i] = new PositionalAudio(audiolist)
             if (octave >= 2 && octave <= 5) {
                 // console.log('/src/notes/'+name+String(octave)+'.mp3')
-                audioLoader.load('/src/components/sounds/notes/'+name+String(octave)+'.mp3', function(buffer){
+                audioLoader.load(KEY_NAME_TO_FILENAME_MAP[name + String(octave)], function(buffer){
                     k.sounds[i].setBuffer(buffer)
                     k.sounds[i].setRefDistance(20)
                     // k.sounds[i].detune = -1200
