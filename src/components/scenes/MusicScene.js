@@ -4,8 +4,24 @@ import { Vector3 } from 'three';
 import { SphereGeometry, MeshBasicMaterial, Mesh } from 'three';
 import { Flower, Land, Piano, Keys, Marble } from 'objects';
 import { BasicLights } from 'lights';
+import mary from '../example_scenes/mary.json';
 
 const SIM_SPEED = 2;
+
+function loadJSON(url, callback) {   
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', url, true);
+    xobj.onreadystatechange = function () {
+      if (xobj.status == "200") {
+          if (xobj.readyState == 4) {
+            const jsonStr = JSON.parse(xobj.responseText);
+            callback(jsonStr);
+          }
+      }
+    };
+    xobj.send(null);  
+}
 
 class MusicScene extends Scene {
     constructor(camera, audiolist) {
@@ -26,7 +42,8 @@ class MusicScene extends Scene {
             'Marble z': 0,
             'Marble Vel x': 0,
             'Marble Vel y': 0,
-            'Marble Vel z': 1.04
+            'Marble Vel z': 1.04,
+            presetScene: 'mary',
         };
 
         this.camera = camera
@@ -59,6 +76,7 @@ class MusicScene extends Scene {
         interactiveFolder.add(this.state, 'marbleMass', 0.1, 10, 0.1);
         interactiveFolder.add(this.state, 'marbleRadius', 0.1, 0.5, 0.01);
 
+        // Create marble folder
         const marbleFolder = this.state.gui.addFolder('Create Marble');
         marbleFolder.add(this.state, 'Marble x', -5, 5, 0.01);
         marbleFolder.add(this.state, 'Marble y', -5, 20, 0.01);
@@ -66,6 +84,7 @@ class MusicScene extends Scene {
         marbleFolder.add(this.state, 'Marble Vel x', -5, 5, 0.01);
         marbleFolder.add(this.state, 'Marble Vel y', -5, 5, 0.01);
         marbleFolder.add(this.state, 'Marble Vel z', -5, 5, 0.01);
+        // Button to create marble
         const state = this.state;
         const scene = this;
         const createMarbleButton = { 
@@ -76,6 +95,61 @@ class MusicScene extends Scene {
             }
         };
         marbleFolder.add(createMarbleButton, 'createMarble')
+
+        // Preset scenes
+        const sceneFolder = this.state.gui.addFolder('Preset Scenes')
+        const presetScenes = ['mary']
+        const presetSceneMap = {
+            'mary': mary,
+        };
+        sceneFolder.add(this.state, 'presetScene', presetScenes);
+        
+        // Array of notes to play, in order of first to last
+        this.queuedNotes = [];
+        this.lastTimestamp = 0;
+
+        // Button to play scene
+        const playSceneButton = {
+            playScene: function() {
+                // Load the json according to which scene was selected
+                loadJSON(presetSceneMap[state.presetScene], function(json) {
+                    // Replace queuedNotes with the notes from json
+                    scene.queuedNotes = [];
+
+                    // Populate notes in the same order as JSON
+                    for (let i = 0; i < json.notes.length; i++) {
+                        const note = json.notes[i];
+                        const timestamp = json.notes[i].timestamp + scene.lastTimestamp;
+                        // Preset: 'a2', 'a-2', etc.
+                        if (note.type === 'preset') {
+                            // Find the desired key
+                            for (let k of scene.keys.keys) {
+                                if (k.name === note.value) {
+                                    // Compute quantities
+                                    let marblePos = k.mesh.position.clone().add(new Vector3(0,3,0)).add(scene.keys.position)
+                                    if (k.keyType()==="white") {
+                                        marblePos.add(new Vector3(-0.4,0,0))
+                                    } else {
+                                        marblePos.add(new Vector3(0,0,0.01))
+                                    }
+                                    marblePos.add(new Vector3(1,0,0))
+                                    let marbleVel = new Vector3(-1, 0, 0)
+
+                                    // Object defining what kind of marble to create
+                                    scene.queuedNotes.push({
+                                        timestamp: timestamp,
+                                        pos: marblePos,
+                                        vel: marbleVel
+                                    })
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        sceneFolder.add(playSceneButton, 'playScene');
     }
 
     addToUpdateList(object) {
@@ -90,6 +164,13 @@ class MusicScene extends Scene {
     update(timeStamp) {
         const { rotationSpeed, updateList } = this.state;
         this.rotation.y  = (rotationSpeed * timeStamp) / 10000;
+        this.lastTimestamp = timeStamp; // For presetScenes
+
+        // Play all queued notes
+        while (this.queuedNotes.length > 0 && this.queuedNotes[0].timestamp <= timeStamp) {
+            const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, this.queuedNotes[0].pos, this.queuedNotes[0].vel);
+            this.queuedNotes.shift();
+        }
 
         // Call update for each object in the updateList
         for (const obj of updateList) {
