@@ -74,7 +74,7 @@ class Marble extends Object3D {
 
         // For testing - simulates an invisible floor at y = -1
         if (this.mesh.position.y < 0) {
-            this.mesh.position.setY(0.5);
+            this.mesh.position.setY(0);
             this.prevVelocity.setY(-this.prevVelocity.y * 0.95)
         }
 
@@ -106,7 +106,6 @@ class Marble extends Object3D {
                 const v1 = (m1 - m2) / (m1 + m2) * u1 + (2 * m2) / (m1 + m2) * u2;
                 const v2 = (2 * m1) / (m1 + m2) * u1 + (m2 - m1) / (m1 + m2) * u2;
 
-                console.log(m1, m2, u1, u2, v1, v2)
                 // Marble's final velocity in y direction
                 // const b = 2 * marbleM * marbleM * marbleV0;
                 // const a = marbleM * keyM + marbleM * marbleM;

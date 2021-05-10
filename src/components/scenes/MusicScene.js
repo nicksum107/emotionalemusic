@@ -6,7 +6,6 @@ import { Flower, Land, Piano, Keys, Marble } from 'objects';
 import { BasicLights } from 'lights';
 
 const SIM_SPEED = 2;
-const MARBLE_MASS = 0.5;
 
 class MusicScene extends Scene {
     constructor(camera, audiolist) {
@@ -20,8 +19,10 @@ class MusicScene extends Scene {
             updateList: [],
             octave: 3,
             directlyPlay: false,
-            'Marble x': 0,
-            'Marble y': 1,
+            marbleMass: 0.5,
+            marbleRadius: 0.1,
+            'Marble x': -2,
+            'Marble y': 10,
             'Marble z': 0,
             'Marble Vel x': 0,
             'Marble Vel y': 0,
@@ -51,18 +52,30 @@ class MusicScene extends Scene {
 
         // Populate GUI
         this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
-        
         this.state.gui.add(this.state, 'octave', 2, 5, 1);
 
-        this.state.gui.add(this.state, 'directlyPlay', )
+        const interactiveFolder = this.state.gui.addFolder('Interaction and Physics');
+        interactiveFolder.add(this.state, 'directlyPlay', );
+        interactiveFolder.add(this.state, 'marbleMass', 0.1, 10, 0.1);
+        interactiveFolder.add(this.state, 'marbleRadius', 0.1, 1, 0.1);
 
-        var marbleFolder = this.state.gui.addFolder('Create Marble');
-        // this.state.gui.add(marbleFolder, 'Marble x', -50, 50);
-        // this.state.gui.add(marbleFolder, 'Marble y', -50, 50);
-        // this.state.gui.add(marbleFolder, 'Marble z', -50, 50);
-        // this.state.gui.add(marbleFolder, 'Marble Vel x', -50, 50);
-        // this.state.gui.add(marbleFolder, 'Marble Vel y', -50, 50);
-        // this.state.gui.add(marbleFolder, 'Marble Vel z', -50, 50);
+        const marbleFolder = this.state.gui.addFolder('Create Marble');
+        marbleFolder.add(this.state, 'Marble x', -5, 5);
+        marbleFolder.add(this.state, 'Marble y', -5, 5);
+        marbleFolder.add(this.state, 'Marble z', -5, 5);
+        marbleFolder.add(this.state, 'Marble Vel x', -5, 5);
+        marbleFolder.add(this.state, 'Marble Vel y', -5, 5);
+        marbleFolder.add(this.state, 'Marble Vel z', -5, 5);
+        const state = this.state;
+        const scene = this;
+        const createMarbleButton = { 
+            createMarble: function() { 
+                const marblePos = new Vector3(state['Marble x'], state['Marble y'], state['Marble z'])
+                const marbleVel = new Vector3(state['Marble Vel x'], state['Marble Vel y'], state['Marble Vel z']);
+                const m = new Marble(scene, state.marbleRadius, state.marbleMass, marblePos, marbleVel)
+            }
+        };
+        marbleFolder.add(createMarbleButton, 'createMarble')
     }
 
     addToUpdateList(object) {
@@ -105,7 +118,7 @@ class MusicScene extends Scene {
                 }
                 marblePos.add(new Vector3(1,0,0))
                 let marbleVel = new Vector3(-1, 0, 0)
-                const m = new Marble(this, 0.1, MARBLE_MASS, marblePos, marbleVel)
+                const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel)
             }
         }
     }

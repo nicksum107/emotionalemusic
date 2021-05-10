@@ -9,10 +9,11 @@ import { Group } from 'three';
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import MODEL from './model.gltf';
 const GRAVITY = -0.5
-const K = 25
+const K = 20
 const DAMPING = 0.01
 const EPS = 0.00001
-const KEY_MASS = 1
+const KEY_MASS = 5
+const PLAY_DISTANCE = 0.04;
 class Key {
     constructor(octave, note, name, audiolist) {
         let k = this 
@@ -84,16 +85,16 @@ class Key {
 
         // Compute new Velocity
         const newVelocity = this.prevVelocity.clone().add(this.forces.clone().multiplyScalar(deltaT / this.mass))
+        this.prevVelocity = newVelocity;
         this.addnVelocity = new Vector3()
 
 
         // clamp the y coordinate 
         if (this.mesh.position.y >= this.maxY) {
-            this.mesh.position.y = this.maxY 
+            this.mesh.position.y = this.maxY - EPS;
             this.prevVelocity.y = 0;
         } else if (this.mesh.position.y <= this.minY) {
-            this.mesh.position.y = this.minY
-            this.prevVelocity.y = 0;
+            this.mesh.position.y = this.minY + EPS;
         }
     }
     playsound(velocity) {
@@ -153,7 +154,7 @@ class BlackKey extends Key {
         }
         this.restPosition = new Vector3().add(this.mesh.position).add(new Vector3(0,1,0))
         this.maxY = this.mesh.position.y 
-        this.playY = this.mesh.position.y - 0.05
+        this.playY = this.mesh.position.y - PLAY_DISTANCE
         this.minY = this.mesh.position.y - 0.1
     }
     keyType() {
@@ -193,7 +194,7 @@ class WhiteKey extends Key {
         }
         this.restPosition = new Vector3().add(this.mesh.position).add(new Vector3(0,1,0))
         this.maxY = this.mesh.position.y 
-        this.playY = this.mesh.position.y - 0.05
+        this.playY = this.mesh.position.y - PLAY_DISTANCE
         this.minY = this.mesh.position.y - 0.1
     } 
     keyType() {
