@@ -119,6 +119,9 @@ class Marble extends Object3D {
                 // Key's final velocity
                 // const keyVf = marbleM * (marbleV0 + marbleVf) / keyM;
                 k.collision(new Vector3(0, v2, 0))
+
+                // Bandaid solution for incorrectly calculating multiple collisions
+                break;
             }
         }
         // i think it woudl be cool to do 

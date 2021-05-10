@@ -95,6 +95,7 @@ class Key {
             this.prevVelocity.y = 0;
         } else if (this.mesh.position.y <= this.minY) {
             this.mesh.position.y = this.minY + EPS;
+            if (this.prevVelocity.y < 0) this.prevVelocity.y = 0;
         }
     }
     playsound(velocity) {

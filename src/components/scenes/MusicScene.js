@@ -60,12 +60,12 @@ class MusicScene extends Scene {
         interactiveFolder.add(this.state, 'marbleRadius', 0.1, 1, 0.1);
 
         const marbleFolder = this.state.gui.addFolder('Create Marble');
-        marbleFolder.add(this.state, 'Marble x', -5, 5);
-        marbleFolder.add(this.state, 'Marble y', -5, 5);
-        marbleFolder.add(this.state, 'Marble z', -5, 5);
-        marbleFolder.add(this.state, 'Marble Vel x', -5, 5);
-        marbleFolder.add(this.state, 'Marble Vel y', -5, 5);
-        marbleFolder.add(this.state, 'Marble Vel z', -5, 5);
+        marbleFolder.add(this.state, 'Marble x', -5, 5, 0.1);
+        marbleFolder.add(this.state, 'Marble y', -5, 20, 0.1);
+        marbleFolder.add(this.state, 'Marble z', -5, 5, 0.1);
+        marbleFolder.add(this.state, 'Marble Vel x', -5, 5, 0.1);
+        marbleFolder.add(this.state, 'Marble Vel y', -5, 5, 0.1);
+        marbleFolder.add(this.state, 'Marble Vel z', -5, 5, 0.1);
         const state = this.state;
         const scene = this;
         const createMarbleButton = { 
