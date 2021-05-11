@@ -131,6 +131,9 @@ class Marble extends Object3D {
                 // const keyVf = marbleM * (marbleV0 + marbleVf) / keyM;
                 k.collision(new Vector3(0, v2, 0))
 
+                // Marble should be above key
+                this.mesh.position.y = this.scene.keys.position.y + keytopy + this.radius;
+
                 // Bandaid solution for incorrectly calculating multiple collisions
                 break;
             }
