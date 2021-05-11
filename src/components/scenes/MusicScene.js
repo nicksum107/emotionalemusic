@@ -55,12 +55,12 @@ class MusicScene extends Scene {
         this.background = new Color(0x7ec0ee);
 
         // Add meshes to scene
-        // const land = new Land();
-        // const flower = new Flower(this);
+        // Piano, lights, and keys are not added within constructor
+        // Drum and marbles are added to scene within constructor
         const piano = new Piano()
         const lights = new BasicLights();
         this.keys = new Keys(this)
-        const drum = new Drum(this, 1.2, 1.4, 2.5, new Vector3(0, 3.5, 10));
+        this.drum = new Drum(this, 1.2, 1.4, 2.5, new Vector3(-1, 3.5, 10));
         this.add(piano, lights, this.keys);
 
         // Populate GUI
@@ -177,6 +177,20 @@ class MusicScene extends Scene {
 
     keyDownHandler(event) {
         console.log(event)
+        // Drum
+        if (String(event.key).toLowerCase() === 'p') {
+            const marblePos = this.drum.mesh.position.clone().add(new Vector3(1.5, 6, 0));
+            const marbleVel = new Vector3(-1, 0, 0);
+            const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
+            return;
+        }
+
+        // Side of drum
+        if (String(event.key).toLowerCase() === 'o') {
+            const marblePos = this.drum.mesh.position.clone().add(new Vector3(0, 0.5, 3));
+            const marbleVel = new Vector3(0, 0.1, -5);
+            const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
+        }
 
         let toplay = String(event.key).toLowerCase()
         if (event.shiftKey) {

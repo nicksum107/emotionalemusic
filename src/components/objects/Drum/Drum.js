@@ -7,10 +7,11 @@ import { Object3D } from 'three';
 import { AudioLoader } from 'three';
 import { PositionalAudio } from 'three';
 import drumsound from '../../sounds/percussion/drum.mp3'
+import drumsidesound from '../../sounds/percussion/drumside.mp3'
 
 const RADIAL_SEGMENTS = 32;
 const HEIGHT_SEGMENTS = 1;
-const NUM_SOUNDS = 15;
+const NUM_SOUNDS = 20;
 class Drum extends Object3D {
     constructor(parent, radiusBottom, radiusTop, height, position) {
         super()
@@ -38,9 +39,11 @@ class Drum extends Object3D {
 
         // Load audio
         this.sounds = new Array(NUM_SOUNDS)
+        this.sideSounds = new Array(NUM_SOUNDS)
         const audioLoader = new AudioLoader()
         for (let i = 0; i < this.sounds.length; i++) {
             this.sounds[i] = new PositionalAudio(parent.audiolist)
+            this.sideSounds[i] = new PositionalAudio(parent.audiolist)
             audioLoader.load(drumsound, function(buffer){
                 d.sounds[i].setBuffer(buffer)
                 d.sounds[i].setRefDistance(20)
@@ -48,21 +51,29 @@ class Drum extends Object3D {
                 // k.sounds[i].setPlaybackRate(2)
                 // k.sounds[i].duration = 1 // Cut off sound at 1 second
             })
-            
+            audioLoader.load(drumsidesound, function(buffer){
+                d.sideSounds[i].setBuffer(buffer)
+                d.sideSounds[i].setRefDistance(20)
+                // k.sounds[i].detune = -1200
+                // k.sounds[i].setPlaybackRate(2)
+                // k.sounds[i].duration = 1 // Cut off sound at 1 second
+            })
         }
     }
 
-    playsound(velocity) {
+    playsound(velocity, isSide) {
         // velocity = -6 = 1
         // change sound volume wrt velocity
         // let scaledvel = -1 * velocity.y - 5 incorrect
         // console.log(velocity)
-        for (let s of this.sounds){ 
+        const soundArray = isSide ? this.sideSounds : this.sounds;
+        const multiplier = isSide ? 0.1 : 2;
+        for (let s of soundArray){ 
             if (!s.isPlaying) {
                 // volume goes from 0 to 20 without sounding bad
                 // console.log(scaledvel, s.getVolume())
 
-                s.setVolume(-1 * velocity.y * 6)
+                s.setVolume(velocity.length() * multiplier)
                 s.play()
                 break 
             }

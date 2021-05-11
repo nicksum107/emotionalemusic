@@ -3,6 +3,7 @@ import { MeshBasicMaterial } from 'three';
 import { Vector3 } from 'three';
 import { Mesh } from 'three';
 import { Object3D } from 'three';
+import { Raycaster } from 'three';
 // import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 // import MODEL from './model.gltf';
 const GRAVITY = -5
@@ -11,6 +12,7 @@ const EPS = 0.00001
 const WIDTH_SEGMENTS = 32
 const HEIGHT_SEGMENTS = 32
 const NUM_FLOOR_BOUNCES = 3
+const COLLISION_TOLERANCE = 5; // 0 = no extra tolerance
 class Marble extends Object3D {
     constructor(parent, radius, mass, initialPos, initialVelocity) {
         super()
@@ -39,6 +41,10 @@ class Marble extends Object3D {
         // Add to parent's update list
         parent.addToUpdateList(this);
         // console.log(this)
+
+        // Drum intersection
+        this.prevDrumIntersection = null;
+        this.collisionCheckCount = 0;
     }
     updateForces() {
         // update all forces on the marble
@@ -90,12 +96,41 @@ class Marble extends Object3D {
             this.prevVelocity.setY(-this.prevVelocity.y * 0.95)
         }
 
-        this.checkCollision()
+        // Check collision; if collided, restore floorBounces to 0
+        if (this.checkCollision()) this.floorBounces = 0;
     }
 
     // checks if there is a collision with objects
     checkCollision() {
-        // for now just check collisiosn with known objects
+        // Check collisions with drum
+        const drum = this.scene.drum;
+        const surfaceOrigin = this.mesh.position.clone().add(this.prevVelocity.clone().setLength(this.radius))
+        const normalizedVelocity = this.prevVelocity.clone().normalize();
+
+        // Check forward intersections ("in front of" the marble)
+        const raycaster = new Raycaster(surfaceOrigin, normalizedVelocity);
+        const forwardIntersections = raycaster.intersectObject(drum.mesh);
+        // drumIntersections is sorted in increasing distance, so only need to check the first intersection
+        if (forwardIntersections.length > 0 && forwardIntersections[0].distance <= this.radius * COLLISION_TOLERANCE) {
+            // Figure out if it is side of drum or not, play sound
+            let isSide = false;
+            const normalNonY = forwardIntersections[0].face.normal.clone();
+            normalNonY.y = 0;
+            // Top and bottom faces are flat, all others are not
+            if (normalNonY.length() > EPS) {
+                isSide = true;
+            }
+            drum.playsound(this.prevVelocity, isSide);
+
+            // Update velocity
+            const faceNormal = forwardIntersections[0].face.normal.clone();
+            const reverseVelocity = this.prevVelocity.clone().multiplyScalar(-1);
+            const newVelocity = faceNormal.clone().multiplyScalar(2 * faceNormal.dot(reverseVelocity)).sub(reverseVelocity);
+            this.prevVelocity.copy(newVelocity);
+            return true;
+        }
+
+        // Check collisions with keys
         let localpos = this.mesh.position.clone().sub(this.scene.keys.position)
         for (let k of this.scene.keys.keys) {
             k.mesh.geometry.computeBoundingBox()
@@ -118,26 +153,19 @@ class Marble extends Object3D {
                 const v2 = (2 * m1) / (m1 + m2) * u1 + (m2 - m1) / (m1 + m2) * u2;
 
                 // Marble's final velocity in y direction
-                // const b = 2 * marbleM * marbleM * marbleV0;
-                // const a = marbleM * keyM + marbleM * marbleM;
-                // const c = Math.pow(marbleM * marbleV0, 2) - marbleM * keyM * Math.pow(marbleV0, 2);
-                // const marbleVf = (-b + Math.sqrt(b*b - 4*a*c)) / 2*a;
-                // console.log(this.prevVelocity)
                 this.prevVelocity.y = v1
-                // console.log(a, b, c, this.prevVelocity)
-                // this.mesh.position.y = keytopy + EPS + this.scene.keys.position.y + this.radius
 
                 // Key's final velocity
-                // const keyVf = marbleM * (marbleV0 + marbleVf) / keyM;
                 k.collision(new Vector3(0, v2, 0))
 
                 // Marble should be above key
                 this.mesh.position.y = this.scene.keys.position.y + keytopy + this.radius;
 
                 // Bandaid solution for incorrectly calculating multiple collisions
-                break;
+                return true;
             }
         }
+        return false; // No collision
         // i think it woudl be cool to do 
     }
 
