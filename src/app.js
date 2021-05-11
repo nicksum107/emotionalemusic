@@ -19,8 +19,8 @@ const scene = new MusicScene(camera, audiolist, window);
 const renderer = new WebGLRenderer({ antialias: true });
 
 // Set up camera
-camera.position.set(-7, 11, 12);
-camera.lookAt(new Vector3(0, 15, 0));
+camera.position.set(-12, 11, 16);
+// camera.lookAt(new Vector3(0, 15, 0)); // See controls.target = ... below, this does not work
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
@@ -36,6 +36,7 @@ controls.enableDamping = true;
 controls.enablePan = true;
 controls.minDistance = 4;
 controls.maxDistance = 20;
+controls.target = new Vector3(1, 2, 4) // This sets where the camera looks at
 controls.update();
 
 // Render loop
