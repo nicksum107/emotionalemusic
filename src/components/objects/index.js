@@ -3,3 +3,4 @@ export * from './Land';
 export * from './Piano';
 export * from './Key';
 export * from './Marble'
+export * from './Drum'
