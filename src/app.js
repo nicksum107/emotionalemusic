@@ -19,7 +19,7 @@ const scene = new MusicScene(camera, audiolist, window);
 const renderer = new WebGLRenderer({ antialias: true });
 
 // Set up camera
-camera.position.set(-7, 10, 11);
+camera.position.set(-7, 11, 12);
 camera.lookAt(new Vector3(0, 15, 0));
 
 // Set up renderer, canvas, and minor CSS adjustments

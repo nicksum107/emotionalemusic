@@ -5,11 +5,13 @@ import { SphereGeometry, MeshBasicMaterial, Mesh } from 'three';
 import { Flower, Land, Piano, Keys, Marble } from 'objects';
 import { BasicLights } from 'lights';
 import mary from '../example_scenes/mary.json';
+import furelise from '../example_scenes/furelise.json';
 
 const SIM_SPEED = 2;
 
 function loadJSON(url, callback) {   
     var xobj = new XMLHttpRequest();
+    // Read the json as "webpage"
     xobj.overrideMimeType("application/json");
     xobj.open('GET', url, true);
     xobj.onreadystatechange = function () {
@@ -98,9 +100,10 @@ class MusicScene extends Scene {
 
         // Preset scenes
         const sceneFolder = this.state.gui.addFolder('Preset Scenes')
-        const presetScenes = ['mary']
+        const presetScenes = ['mary', 'furelise']
         const presetSceneMap = {
             'mary': mary,
+            'furelise': furelise,
         };
         sceneFolder.add(this.state, 'presetScene', presetScenes);
         

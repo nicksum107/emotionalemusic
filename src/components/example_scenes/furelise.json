@@ -3,147 +3,132 @@
         {
             "timestamp": 1000,
             "type": "preset",
-            "value": "e4"
-        },
-        {
-            "timestamp": 1000,
-            "type": "preset",
-            "value": "c3"
-        },
-        {
-            "timestamp": 1000,
-            "type": "preset",
-            "value": "g3"
+            "value": "e5"
         },
         {
             "timestamp": 1300,
             "type": "preset",
-            "value": "d4"
+            "value": "d-5"
         },
         {
             "timestamp": 1600,
             "type": "preset",
-            "value": "c4"
+            "value": "e5"
         },
         {
             "timestamp": 1900,
             "type": "preset",
-            "value": "d4"
+            "value": "d-5"
         },
         {
             "timestamp": 2200,
             "type": "preset",
-            "value": "e4"
+            "value": "e5"
         },
         {
             "timestamp": 2500,
             "type": "preset",
-            "value": "e4"
+            "value": "b4"
         },
         {
             "timestamp": 2800,
             "type": "preset",
-            "value": "e4"
+            "value": "d5"
+        },
+        {
+            "timestamp": 3100,
+            "type": "preset",
+            "value": "c5"
         },
         {
             "timestamp": 3400,
             "type": "preset",
-            "value": "d4"
+            "value": "a4"
         },
         {
             "timestamp": 3400,
             "type": "preset",
-            "value": "g2"
-        },
-        {
-            "timestamp": 3400,
-            "type": "preset",
-            "value": "f3"
-        },
-        {
-            "timestamp": 3400,
-            "type": "preset",
-            "value": "b3"
+            "value": "a2"
         },
         {
             "timestamp": 3700,
             "type": "preset",
-            "value": "d4"
+            "value": "e3"
         },
         {
             "timestamp": 4000,
             "type": "preset",
-            "value": "d4"
+            "value": "a3"
         },
         {
-            "timestamp": 4600,
-            "type": "preset",
-            "value": "e4"
-        },
-        {
-            "timestamp": 4600,
-            "type": "preset",
-            "value": "c3"
-        },
-        {
-            "timestamp": 4600,
-            "type": "preset",
-            "value": "g3"
-        },
-        {
-            "timestamp": 4900,
-            "type": "preset",
-            "value": "g4"
-        },
-        {
-            "timestamp": 5200,
-            "type": "preset",
-            "value": "g4"
-        },
-        {
-            "timestamp": 5800,
-            "type": "preset",
-            "value": "e4"
-        },
-        {
-            "timestamp": 5800,
-            "type": "preset",
-            "value": "c3"
-        },
-        {
-            "timestamp": 5800,
-            "type": "preset",
-            "value": "g3"
-        },
-        {
-            "timestamp": 6100,
-            "type": "preset",
-            "value": "d4"
-        },
-        {
-            "timestamp": 6400,
+            "timestamp": 4300,
             "type": "preset",
             "value": "c4"
         },
         {
+            "timestamp": 4600,
+            "type": "preset",
+            "value": "e4"
+        },
+        {
+            "timestamp": 4900,
+            "type": "preset",
+            "value": "a4"
+        },
+        {
+            "timestamp": 5200,
+            "type": "preset",
+            "value": "b4"
+        },
+        {
+            "timestamp": 5200,
+            "type": "preset",
+            "value": "e2"
+        },
+        {
+            "timestamp": 5500,
+            "type": "preset",
+            "value": "e3"
+        },
+        {
+            "timestamp": 5800,
+            "type": "preset",
+            "value": "g-3"
+        },
+        {
+            "timestamp": 6100,
+            "type": "preset",
+            "value": "e4"
+        },
+        {
+            "timestamp": 6400,
+            "type": "preset",
+            "value": "g-4"
+        },
+        {
             "timestamp": 6700,
             "type": "preset",
-            "value": "d4"
+            "value": "b4"
         },
         {
             "timestamp": 7000,
             "type": "preset",
-            "value": "e4"
+            "value": "c5"
+        },
+        {
+            "timestamp": 7000,
+            "type": "preset",
+            "value": "a2"
         },
         {
             "timestamp": 7300,
             "type": "preset",
-            "value": "e4"
+            "value": "e3"
         },
         {
             "timestamp": 7600,
             "type": "preset",
-            "value": "e4"
+            "value": "a3"
         },
         {
             "timestamp": 7900,
@@ -153,77 +138,137 @@
         {
             "timestamp": 8200,
             "type": "preset",
-            "value": "d4"
-        },
-        {
-            "timestamp": 8200,
-            "type": "preset",
-            "value": "g2"
-        },
-        {
-            "timestamp": 8200,
-            "type": "preset",
-            "value": "f3"
-        },
-        {
-            "timestamp": 8200,
-            "type": "preset",
-            "value": "b3"
+            "value": "e5"
         },
         {
             "timestamp": 8500,
             "type": "preset",
-            "value": "d4"
+            "value": "d-5"
         },
         {
             "timestamp": 8800,
             "type": "preset",
-            "value": "e4"
+            "value": "e5"
         },
         {
             "timestamp": 9100,
             "type": "preset",
-            "value": "d4"
-        },
-        {
-            "timestamp": 9100,
-            "type": "preset",
-            "value": "f3"
-        },
-        {
-            "timestamp": 9100,
-            "type": "preset",
-            "value": "b3"
+            "value": "d-5"
         },
         {
             "timestamp": 9400,
             "type": "preset",
-            "value": "c4"
+            "value": "e5"
         },
         {
-            "timestamp": 9400,
+            "timestamp": 9700,
             "type": "preset",
-            "value": "e3"
-        },
-        {
-            "timestamp": 9775,
-            "type": "preset",
-            "value": "c4"
-        },
-        {
-            "timestamp": 9850,
-            "type": "preset",
-            "value": "e4"
-        },
-        {
-            "timestamp": 9925,
-            "type": "preset",
-            "value": "g4"
+            "value": "b4"
         },
         {
             "timestamp": 10000,
             "type": "preset",
+            "value": "d5"
+        },
+        {
+            "timestamp": 10300,
+            "type": "preset",
             "value": "c5"
+        },
+        {
+            "timestamp": 10600,
+            "type": "preset",
+            "value": "a4"
+        },
+        {
+            "timestamp": 10600,
+            "type": "preset",
+            "value": "a2"
+        },
+        {
+            "timestamp": 10900,
+            "type": "preset",
+            "value": "e3"
+        },
+        {
+            "timestamp": 11200,
+            "type": "preset",
+            "value": "a3"
+        },
+        {
+            "timestamp": 11500,
+            "type": "preset",
+            "value": "c4"
+        },
+        {
+            "timestamp": 11800,
+            "type": "preset",
+            "value": "e4"
+        },
+        {
+            "timestamp": 12100,
+            "type": "preset",
+            "value": "a4"
+        },
+        {
+            "timestamp": 12400,
+            "type": "preset",
+            "value": "b4"
+        },
+        {
+            "timestamp": 12400,
+            "type": "preset",
+            "value": "e2"
+        },
+        {
+            "timestamp": 12700,
+            "type": "preset",
+            "value": "e3"
+        },
+        {
+            "timestamp": 13000,
+            "type": "preset",
+            "value": "g-3"
+        },
+        {
+            "timestamp": 13300,
+            "type": "preset",
+            "value": "d4"
+        },
+        {
+            "timestamp": 13600,
+            "type": "preset",
+            "value": "c5"
+        },
+        {
+            "timestamp": 13900,
+            "type": "preset",
+            "value": "b4"
+        },
+        {
+            "timestamp": 14200,
+            "type": "preset",
+            "value": "a2"
+        },
+        {
+            "timestamp": 14275,
+            "type": "preset",
+            "value": "a3"
+        },
+        {
+            "timestamp": 14350,
+            "type": "preset",
+            "value": "c4"
+        },
+        {
+            "timestamp": 14425,
+            "type": "preset",
+            "value": "e4"
+        },
+        {
+            "timestamp": 14500,
+            "type": "preset",
+            "value": "a4"
         }
     ]
 }
