@@ -35,6 +35,7 @@ class Marble extends Object3D {
         this.prevTime = -1
         this.mass = mass
         this.floorBounces = 0;
+        this.foundCollision = null 
 
         this.scene = parent
 
@@ -64,6 +65,12 @@ class Marble extends Object3D {
 
         let deltaT = (timeStamp - this.prevTime) / 1000 // ms
         this.prevTime = timeStamp
+        if (this.foundCollision!= null) {
+            this.previous = this.mesh.position.clone()
+            this.mesh.position.sub(this.mesh.position).add(this.foundCollision)
+            this.foundCollision = null 
+            return 
+        }
 
         // Update position
         let diff = this.prevVelocity.clone().multiplyScalar(deltaT);
@@ -157,22 +164,73 @@ class Marble extends Object3D {
     checkMeshCollision() {
         let origin = this.mesh.position.clone() 
 
+        let v = this.prevVelocity.clone()
         for (let i = 0; i < NUM_COLLISION_RAYS; i++) {
-            let dir = this.sampleDirection()
+            if (i == 0) { // prefer direction of motion
+                var dir = v.clone().normalize()
+            } else {
+                var dir = this.sampleDirection()
+            }
             // get all collisions of this ray until the radius
             let ray = new Raycaster(origin, dir.normalize())
-            var result = ray.intersectObjects(this.scene.collidablemeshes)
+            var result = ray.intersectObject(this.scene.collidablemeshes[0].mesh)
             
-            // console.log(dir)
             if (result.length > 0) {
-                console.log('found')
-                // bounce across the normal
-                this.prevVelocity.reflect(result[0].face.normal)
-                this.prevVelocity.multiplyScalar(0.95)
+                // this.potentialCollision = result[0]
+                
+                // difficulties with too large of step size
+                if (result[0].distance < v.length()*0.05 + this.radius +EPS&& 
+                    result[0].distance > this.radius -EPS&& 
+                    v.dot(result[0].face.normal)  < -0.3 ) { // check going right direction
+                    // bounce across the normal
+                    this.foundCollision = result[0].point
+                    this.foundCollision.add(dir.multiplyScalar(-this.radius))
+                    this.prevVelocity.reflect(result[0].face.normal)
+                    this.prevVelocity.multiplyScalar(0.95)
+                }
                 return 
             }
         }
     }
+    // try to do max
+    // checkMeshCollision() {
+    //     let origin = this.mesh.position.clone() 
+
+    //     let v = this.prevVelocity.clone()
+    //     let mindist = Number.POSITIVE_INFINITY
+    //     let min = null
+    //     for (let i = 0; i < NUM_COLLISION_RAYS; i++) {
+    //         if (i == 0) {
+    //             var dir = v.clone().normalize()
+    //         } else {
+    //             var dir = this.sampleDirection()
+    //         }
+    //         // get all collisions of this ray until the radius
+    //         let ray = new Raycaster(origin, dir.normalize())
+    //         var result = ray.intersectObject(this.scene.collidablemeshes[0].mesh)
+            
+    //         if (result.length > 0) {
+    //             // this.potentialCollision = result[0]
+    //             if (result.distance < mindist &&
+    //                 result.distance > this.radius - EPS ) {
+    //                 min = result[0]
+    //                 mindist = result.distance
+    //             }       
+                
+    //         }
+    //     }
+    //     // difficulties with too large of step size
+    //     if (mindist < v.length()*0.05 + this.radius +EPS&& 
+    //         v.dot(min.face.normal)  < -0.3 ) { // check going right direction
+            
+    //         // bounce across the normal
+    //         this.foundCollision = min.point
+    //         this.foundCollision.add(dir.multiplyScalar(-this.radius))
+    //         this.prevVelocity.reflect(min.face.normal)
+    //         this.prevVelocity.multiplyScalar(0.95)
+    //     }
+    //     return 
+    // }
 }
 
 

@@ -13,18 +13,24 @@ class Piano extends Group {
         this.name = 'piano';
         this.scale.multiplyScalar(3)
         
-        // let p = this 
+        let p = this 
         
+        var temp 
 
         loader.load(MODEL, (gltf) => {
-            this.add(gltf.scene);
-            // gltf.scene.traverse(function(child) {
-            //     if (child instanceof Mesh) {
-            //         console.log(child)
-            //         p.mesh = child
-            //     }
-            // });
+            // this.add(gltf.scene);
+            gltf.scene.traverse(function(child) {
+                if (child instanceof Mesh) {
+                    // console.log(child)
+                    p.mesh = child
+                    temp = child 
+                    p.add(child)
+                }
+            });
         });
+
+        // console.log(temp)
+        // this.add(temp)
     }
 }
 

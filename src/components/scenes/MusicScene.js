@@ -77,7 +77,7 @@ class MusicScene extends Scene {
         };
         marbleFolder.add(createMarbleButton, 'createMarble')
 
-
+        // console.log(piano.)
         this.collidablemeshes = [piano] // piano is the only collidable mesh at the moment
         // console.log(this.keys.keys)
     }
@@ -101,11 +101,11 @@ class MusicScene extends Scene {
     }
 
     keyDownHandler(event) {
-        console.log(event)
+        // console.log(event)
 
         let toplay = String(event.key).toLowerCase()
-        if (toplay == "p") {
-            let marblePos = new Vector3(1,10,1)
+        if (toplay == "y") {
+            let marblePos = new Vector3(1,8,1)
             const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, new Vector3(0,0,0))
             return 
         }
