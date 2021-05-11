@@ -6,6 +6,7 @@ import { Flower, Land, Piano, Keys, Marble, Drum } from 'objects';
 import { BasicLights } from 'lights';
 import mary from '../example_scenes/mary.json';
 import furelise from '../example_scenes/furelise.json';
+import mountainking from '../example_scenes/mountainking.json';
 
 const SIM_SPEED = 2;
 const DRUM_HALFHEIGHT = 1.25;
@@ -97,10 +98,11 @@ class MusicScene extends Scene {
 
         // Preset scenes
         const sceneFolder = this.state.gui.addFolder('Preset Scenes')
-        const presetScenes = ['mary', 'furelise']
+        const presetScenes = ['mary', 'furelise', 'mountainking']
         const presetSceneMap = {
             'mary': mary,
             'furelise': furelise,
+            'mountainking': mountainking,
         };
         sceneFolder.add(this.state, 'presetScene', presetScenes);
         
@@ -122,18 +124,28 @@ class MusicScene extends Scene {
                         const timestamp = json.notes[i].timestamp + scene.lastTimestamp;
                         // Preset: 'a2', 'a-2', etc.
                         if (note.type === 'preset') {
+                            // Check for drum/side of drum first
+                            if (note.value === 'drum') {
+                                scene.queuedNotes.push({
+                                    timestamp: timestamp,
+                                    pos: scene.getPresetDrumMarblePos(),
+                                    vel: scene.getPresetDrumMarbleVel(),
+                                });
+                            }
+                            if (note.value === 'sidedrum') {
+                                scene.queuedNotes.push({
+                                    timestamp: timestamp,
+                                    pos: scene.getPresetSideDrumMarblePos(),
+                                    vel: scene.getPresetSideDrumMarbleVel(),
+                                });
+                            }
+
                             // Find the desired key
                             for (let k of scene.keys.keys) {
                                 if (k.name === note.value) {
                                     // Compute quantities
-                                    let marblePos = k.mesh.position.clone().add(new Vector3(0,3,0)).add(scene.keys.position)
-                                    if (k.keyType()==="white") {
-                                        marblePos.add(new Vector3(-0.4,0,0))
-                                    } else {
-                                        marblePos.add(new Vector3(0,0,0.01))
-                                    }
-                                    marblePos.add(new Vector3(1,0,0))
-                                    let marbleVel = new Vector3(-1, 0, 0)
+                                    const marblePos = scene.getPresetKeyMarblePos(k)
+                                    const marbleVel = scene.getPresetKeyMarbleVel();
 
                                     // Object defining what kind of marble to create
                                     scene.queuedNotes.push({
@@ -178,20 +190,51 @@ class MusicScene extends Scene {
         }
     }
 
+    getPresetDrumMarblePos() {
+        return this.drum.mesh.position.clone().add(new Vector3(0, 3 + DRUM_HALFHEIGHT, 0))
+    }
+
+    getPresetDrumMarbleVel() {
+        return new Vector3(-1, 0, 0);
+    }
+
+    getPresetSideDrumMarblePos() {
+        return this.drum.mesh.position.clone().add(new Vector3(0, 1, 5 + (DRUM_RADIUS_BOTTOM + DRUM_RADIUS_TOP) / 2))
+    }
+
+    getPresetSideDrumMarbleVel() {
+        return new Vector3(0, 1, -4.5)
+    }
+
+    getPresetKeyMarblePos(k) {
+        let marblePos = k.mesh.position.clone().add(new Vector3(0,3,0)).add(this.keys.position)
+        if (k.keyType()==="white") {
+            marblePos.add(new Vector3(-0.4,0,0))
+        } else {
+            marblePos.add(new Vector3(0,0,0.01))
+        }
+        marblePos.add(new Vector3(1,0,0))
+        return marblePos;
+    }
+
+    getPresetKeyMarbleVel() {
+        return new Vector3(-1, 0, 0)
+    }
+
     keyDownHandler(event) {
         console.log(event)
         // Drum
         if (String(event.key).toLowerCase() === 'p') {
-            const marblePos = this.drum.mesh.position.clone().add(new Vector3(0, 3 + DRUM_HALFHEIGHT, 0));
-            const marbleVel = new Vector3(-1, 0, 0);
+            const marblePos = this.getPresetDrumMarblePos();
+            const marbleVel = this.getPresetDrumMarbleVel();
             const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
             return;
         }
 
         // Side of drum
         if (String(event.key).toLowerCase() === 'o') {
-            const marblePos = this.drum.mesh.position.clone().add(new Vector3(0, 0, 2.4 + (DRUM_RADIUS_BOTTOM + DRUM_RADIUS_TOP) / 2));
-            const marbleVel = new Vector3(0, 2.2, -2);
+            const marblePos = this.getPresetSideDrumMarblePos();
+            const marbleVel = this.getPresetSideDrumMarbleVel();
             const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
         }
 
@@ -210,14 +253,8 @@ class MusicScene extends Scene {
         // spawn a marble to play the note
         for (let k of this.keys.keys) {
             if (k.name == toplay) {
-                let marblePos = k.mesh.position.clone().add(new Vector3(0,3,0)).add(this.keys.position)
-                if (k.keyType()==="white") {
-                    marblePos.add(new Vector3(-0.4,0,0))
-                } else {
-                    marblePos.add(new Vector3(0,0,0.01))
-                }
-                marblePos.add(new Vector3(1,0,0))
-                let marbleVel = new Vector3(-1, 0, 0)
+                const marblePos = this.getPresetKeyMarblePos(k)
+                const marbleVel = this.getPresetKeyMarbleVel();
                 const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel)
             }
         }
