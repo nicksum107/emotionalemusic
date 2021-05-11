@@ -8,6 +8,9 @@ import mary from '../example_scenes/mary.json';
 import furelise from '../example_scenes/furelise.json';
 
 const SIM_SPEED = 2;
+const DRUM_HALFHEIGHT = 1.25;
+const DRUM_RADIUS_BOTTOM = 1.2;
+const DRUM_RADIUS_TOP = 1.4;
 
 function loadJSON(url, callback) {   
     var xobj = new XMLHttpRequest();
@@ -60,7 +63,7 @@ class MusicScene extends Scene {
         const piano = new Piano()
         const lights = new BasicLights();
         this.keys = new Keys(this)
-        this.drum = new Drum(this, 1.2, 1.4, 2.5, new Vector3(-1, 3.5, 10));
+        this.drum = new Drum(this, DRUM_RADIUS_BOTTOM, DRUM_RADIUS_TOP, DRUM_HALFHEIGHT * 2, new Vector3(-1, 3.5, 10));
         this.add(piano, lights, this.keys);
 
         // Populate GUI
@@ -179,7 +182,7 @@ class MusicScene extends Scene {
         console.log(event)
         // Drum
         if (String(event.key).toLowerCase() === 'p') {
-            const marblePos = this.drum.mesh.position.clone().add(new Vector3(1.5, 6, 0));
+            const marblePos = this.drum.mesh.position.clone().add(new Vector3(0, 3 + DRUM_HALFHEIGHT, 0));
             const marbleVel = new Vector3(-1, 0, 0);
             const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
             return;
@@ -187,8 +190,8 @@ class MusicScene extends Scene {
 
         // Side of drum
         if (String(event.key).toLowerCase() === 'o') {
-            const marblePos = this.drum.mesh.position.clone().add(new Vector3(0, 0.5, 3));
-            const marbleVel = new Vector3(0, 0.1, -5);
+            const marblePos = this.drum.mesh.position.clone().add(new Vector3(0, 0, 2.4 + (DRUM_RADIUS_BOTTOM + DRUM_RADIUS_TOP) / 2));
+            const marbleVel = new Vector3(0, 2.2, -2);
             const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
         }
 
