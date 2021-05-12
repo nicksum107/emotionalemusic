@@ -189,7 +189,7 @@ class MusicScene extends Scene {
                 });
             }
         }
-        sceneFolder.add(playSceneButton, 'playScene');
+        presetSceneFolder.add(playSceneButton, 'playScene');
     }
 
     addToUpdateList(object) {
