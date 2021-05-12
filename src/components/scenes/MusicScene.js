@@ -90,7 +90,7 @@ class MusicScene extends Scene {
         // Scene
         const sceneFolder = this.state.gui.addFolder('Scene');
         const drumXSlider = sceneFolder.add(this.state, 'drumX', -10, 10, 0.01)
-        const drumYSlider = sceneFolder.add(this.state, 'drumY', -10, 10, 0.01)
+        const drumYSlider = sceneFolder.add(this.state, 'drumY', 1.4, 10, 0.01)
         const drumZSlider = sceneFolder.add(this.state, 'drumZ', -10, 10, 0.01)
         const onDrumCoordsChange = function () {
             const drumPos = new Vector3(state.drumX, state.drumY, state.drumZ)
