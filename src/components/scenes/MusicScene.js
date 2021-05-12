@@ -68,7 +68,7 @@ class MusicScene extends Scene {
         this.add(piano, lights, this.keys);
 
         // Populate GUI
-        this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
+        // this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
         this.state.gui.add(this.state, 'octave', 2, 5, 1);
 
         const interactiveFolder = this.state.gui.addFolder('Interaction and Physics');
@@ -80,7 +80,7 @@ class MusicScene extends Scene {
         const marbleFolder = this.state.gui.addFolder('Create Marble');
         marbleFolder.add(this.state, 'Marble x', -5, 5, 0.01);
         marbleFolder.add(this.state, 'Marble y', -5, 20, 0.01);
-        marbleFolder.add(this.state, 'Marble z', -5, 5, 0.01);
+        marbleFolder.add(this.state, 'Marble z', -5, 20, 0.01);
         marbleFolder.add(this.state, 'Marble Vel x', -5, 5, 0.01);
         marbleFolder.add(this.state, 'Marble Vel y', -5, 5, 0.01);
         marbleFolder.add(this.state, 'Marble Vel z', -5, 5, 0.01);

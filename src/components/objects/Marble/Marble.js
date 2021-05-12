@@ -122,6 +122,10 @@ class Marble extends Object3D {
             }
             drum.playsound(this.prevVelocity, isSide);
 
+            // Put marble roughly where it would be on the surface of the drum
+            // const newPos = forwardIntersections[0].point.clone().sub(this.prevVelocity.clone().setLength(this.radius));
+            // this.mesh.position.copy(newPos);
+
             // Update velocity
             const faceNormal = forwardIntersections[0].face.normal.clone();
             const reverseVelocity = this.prevVelocity.clone().multiplyScalar(-1);

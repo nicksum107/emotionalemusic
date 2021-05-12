@@ -36,7 +36,7 @@ controls.enableDamping = true;
 controls.enablePan = true;
 controls.minDistance = 4;
 controls.maxDistance = 20;
-controls.target = new Vector3(1, 2, 4) // This sets where the camera looks at
+controls.target = new Vector3(1, 3.5, 4) // This sets where the camera looks at
 controls.update();
 
 // Render loop
