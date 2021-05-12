@@ -80,8 +80,8 @@ class Marble extends Object3D {
         this.prevVelocity = newVelocity.add(this.addnVelocity);
         this.addnVelocity = new Vector3()
 
-        // simulates an invisible floor at y = 0
-        if (this.mesh.position.y < 0) {
+        // collisions with the floor in the scene
+        if (this.mesh.position.y < this.scene.floorHeight + this.radius + EPS) {
             this.floorBounces++;
             // Delete if we hit floor enough times
             if (this.floorBounces >= NUM_FLOOR_BOUNCES) {
@@ -92,7 +92,7 @@ class Marble extends Object3D {
                 return;
             }
 
-            this.mesh.position.setY(0);
+            this.mesh.position.setY(this.scene.floorHeight + this.radius);
             this.prevVelocity.setY(-this.prevVelocity.y * 0.95)
         }
 

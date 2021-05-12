@@ -1,7 +1,7 @@
 import * as Dat from 'dat.gui';
 import { Scene, Color } from 'three';
 import { Vector3 } from 'three';
-import { SphereGeometry, MeshBasicMaterial, Mesh } from 'three';
+import { PlaneGeometry, MeshBasicMaterial, MeshLambertMaterial, Mesh, DoubleSide } from 'three';
 import { Flower, Land, Piano, Keys, Marble, Drum } from 'objects';
 import { BasicLights } from 'lights';
 import mary from '../example_scenes/mary.json';
@@ -66,6 +66,15 @@ class MusicScene extends Scene {
         this.keys = new Keys(this)
         this.drum = new Drum(this, DRUM_RADIUS_BOTTOM, DRUM_RADIUS_TOP, DRUM_HALFHEIGHT * 2, new Vector3(-1, 3.5, 10));
         this.add(piano, lights, this.keys);
+
+        // Add floor and surrounding sphere
+        this.floorHeight = 0.32;
+        const geometry = new PlaneGeometry(5000, 5000);
+        geometry.rotateX(- Math.PI / 2); // Rotate to be flat (ground)
+        geometry.translate(0, this.floorHeight, 0); // Touch bottom of piano
+        const material = new MeshLambertMaterial({ color: 0x47894b, side: DoubleSide });
+        const plane = new Mesh(geometry, material);
+        this.add(plane);
 
         // Populate GUI
         // this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
