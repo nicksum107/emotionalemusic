@@ -48,8 +48,11 @@ class MusicScene extends Scene {
             'Marble z': 0,
             'Marble Vel x': 0,
             'Marble Vel y': 0,
-            'Marble Vel z': 1.04,
+            'Marble Vel z': 1.62,
             presetScene: 'mary',
+            drumX: -1,
+            drumY: 1.57,
+            drumZ: 10,
         };
 
         this.camera = camera
@@ -58,13 +61,17 @@ class MusicScene extends Scene {
         // Set background to a nice color
         this.background = new Color(0x7ec0ee);
 
+        // Scope/closure stuff
+        const state = this.state;
+        const scene = this;
+
         // Add meshes to scene
         // Piano, lights, and keys are not added within constructor
         // Drum and marbles are added to scene within constructor
         const piano = new Piano()
         const lights = new BasicLights();
         this.keys = new Keys(this)
-        this.drum = new Drum(this, DRUM_RADIUS_BOTTOM, DRUM_RADIUS_TOP, DRUM_HALFHEIGHT * 2, new Vector3(-1, 3.5, 10));
+        this.drum = new Drum(this, DRUM_RADIUS_BOTTOM, DRUM_RADIUS_TOP, DRUM_HALFHEIGHT * 2, new Vector3(this.state.drumX, this.state.drumY, this.state.drumZ));
         this.add(piano, lights, this.keys);
 
         // Add floor and surrounding sphere
@@ -80,6 +87,20 @@ class MusicScene extends Scene {
         // this.state.gui.add(this.state, 'rotationSpeed', -5, 5);
         this.state.gui.add(this.state, 'octave', 2, 5, 1);
 
+        // Scene
+        const sceneFolder = this.state.gui.addFolder('Scene');
+        const drumXSlider = sceneFolder.add(this.state, 'drumX', -10, 10, 0.01)
+        const drumYSlider = sceneFolder.add(this.state, 'drumY', -10, 10, 0.01)
+        const drumZSlider = sceneFolder.add(this.state, 'drumZ', -10, 10, 0.01)
+        const onDrumCoordsChange = function () {
+            const drumPos = new Vector3(state.drumX, state.drumY, state.drumZ)
+            scene.drum.mesh.position.copy(drumPos)
+        }
+        drumXSlider.onChange(onDrumCoordsChange)
+        drumYSlider.onChange(onDrumCoordsChange)
+        drumZSlider.onChange(onDrumCoordsChange)
+
+        // User Interaction and Physical Constants
         const interactiveFolder = this.state.gui.addFolder('Interaction and Physics');
         interactiveFolder.add(this.state, 'directlyPlay', );
         interactiveFolder.add(this.state, 'marbleMass', 0.1, 10, 0.1);
@@ -94,8 +115,6 @@ class MusicScene extends Scene {
         marbleFolder.add(this.state, 'Marble Vel y', -5, 5, 0.01);
         marbleFolder.add(this.state, 'Marble Vel z', -5, 5, 0.01);
         // Button to create marble
-        const state = this.state;
-        const scene = this;
         const createMarbleButton = { 
             createMarble: function() { 
                 const marblePos = new Vector3(state['Marble x'], state['Marble y'], state['Marble z'])
@@ -106,14 +125,14 @@ class MusicScene extends Scene {
         marbleFolder.add(createMarbleButton, 'createMarble')
 
         // Preset scenes
-        const sceneFolder = this.state.gui.addFolder('Preset Scenes')
+        const presetSceneFolder = this.state.gui.addFolder('Preset Scenes')
         const presetScenes = ['mary', 'furelise', 'mountainking']
         const presetSceneMap = {
             'mary': mary,
             'furelise': furelise,
             'mountainking': mountainking,
         };
-        sceneFolder.add(this.state, 'presetScene', presetScenes);
+        presetSceneFolder.add(this.state, 'presetScene', presetScenes);
         
         // Array of notes to play, in order of first to last
         this.queuedNotes = [];
