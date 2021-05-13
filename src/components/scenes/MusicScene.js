@@ -54,6 +54,7 @@ class MusicScene extends Scene {
             drumY: 1.57,
             drumZ: 10,
             rawJson: '',
+            recordingOutput: '',
         };
 
         this.camera = camera
@@ -90,9 +91,9 @@ class MusicScene extends Scene {
 
         // Scene
         const sceneFolder = this.state.gui.addFolder('Scene');
-        const drumXSlider = sceneFolder.add(this.state, 'drumX', -10, 10, 0.01)
-        const drumYSlider = sceneFolder.add(this.state, 'drumY', 1.4, 10, 0.01)
-        const drumZSlider = sceneFolder.add(this.state, 'drumZ', -10, 10, 0.01)
+        const drumXSlider = sceneFolder.add(this.state, 'drumX', -10, 10, 0.01).listen()
+        const drumYSlider = sceneFolder.add(this.state, 'drumY', 1.4, 10, 0.01).listen()
+        const drumZSlider = sceneFolder.add(this.state, 'drumZ', -10, 10, 0.01).listen()
         const onDrumCoordsChange = function () {
             const drumPos = new Vector3(state.drumX, state.drumY, state.drumZ)
             scene.drum.mesh.position.copy(drumPos)
@@ -101,11 +102,57 @@ class MusicScene extends Scene {
         drumYSlider.onChange(onDrumCoordsChange)
         drumZSlider.onChange(onDrumCoordsChange)
 
-        // User Interaction and Physical Constants
-        const interactiveFolder = this.state.gui.addFolder('Interaction and Physics');
+        // User Interaction
+        const interactiveFolder = this.state.gui.addFolder('Interaction and Recording');
         interactiveFolder.add(this.state, 'directlyPlay', );
-        interactiveFolder.add(this.state, 'marbleMass', 0.1, 10, 0.1);
-        interactiveFolder.add(this.state, 'marbleRadius', 0.1, 0.5, 0.01);
+        // Recording
+        this.isRecording = false;
+        this.recordingStartTimestamp = null;
+        this.recordingMarbles = null;
+        const startRecordingButton = {
+            startRecording: function() {
+                // only do something if not already recording
+                // TODO: Support specifying marble mass and radius
+                // TODO: Cool extension could be to also allow moving drum during, and have that in JSON files
+                if (!scene.isRecording) {
+                    scene.isRecording = true;
+                    scene.recordingStartTimestamp = scene.lastTimestamp;
+                    scene.recordingMarbles = [];
+                    scene.recordingDrumPos = scene.drum.mesh.position;
+                }
+            }
+        }
+        interactiveFolder.add(startRecordingButton, 'startRecording')
+        const endRecordingButton = {
+            endRecording: function() {
+                // only do something if already recording
+                if (scene.isRecording) {
+                    scene.isRecording = false;
+                    
+                    // in the same format as preset scenes
+                    const json = {
+                        drumPos: [scene.recordingDrumPos.x, scene.recordingDrumPos.y, scene.recordingDrumPos.z],
+                        notes: scene.recordingMarbles,
+                    };
+                    const jsonStr = JSON.stringify(json);
+                    
+                    // Display in text box for user
+                    state.recordingOutput = jsonStr;
+
+                    // Probably unnecessary, but will help alert of any bugs
+                    scene.recordingStartTimestamp = null;
+                    scene.recordingMarbles = null;
+                }
+            }
+        }
+        interactiveFolder.add(endRecordingButton, 'endRecording')
+        // Display box for output
+        interactiveFolder.add(this.state, 'recordingOutput').listen();
+
+        // Physical Constants
+        const physicsFolder = this.state.gui.addFolder('Physics');
+        physicsFolder.add(this.state, 'marbleMass', 0.1, 10, 0.1);
+        physicsFolder.add(this.state, 'marbleRadius', 0.1, 0.5, 0.01);
 
         // Create marble folder
         const marbleFolder = this.state.gui.addFolder('Create Marble');
@@ -189,6 +236,12 @@ class MusicScene extends Scene {
                             break;
                         }
                     }
+                } else if (note.type === 'exact') {
+                    scene.queuedNotes.push({
+                        timestamp: timestamp,
+                        pos: new Vector3(note.pos[0], note.pos[1], note.pos[2]),
+                        vel: new Vector3(note.vel[0], note.vel[1], note.vel[2])
+                    });
                 }
             }
         }
@@ -214,6 +267,15 @@ class MusicScene extends Scene {
 
     // Create marble and handle anything needed on creation
     createMarble(marbleRadius, marbleMass, marblePos, marbleVel) {
+        // Record note if we are currently recording
+        if (this.isRecording) {
+            this.recordingMarbles.push({
+                timestamp: this.lastTimestamp - this.recordingStartTimestamp,
+                type: 'exact',
+                pos: [marblePos.x, marblePos.y, marblePos.z],
+                vel: [marbleVel.x, marbleVel.y, marbleVel.z]
+            })
+        }
         return new Marble(this, marbleRadius, marbleMass, marblePos, marbleVel);
     }
 
