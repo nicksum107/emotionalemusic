@@ -1,6 +1,7 @@
 import { BoxGeometry } from 'three';
 import { MeshBasicMaterial } from 'three';
 import { AudioLoader } from 'three';
+import { Object3D } from 'three';
 import { Plane } from 'three';
 import { PositionalAudio } from 'three';
 import { Vector3 } from 'three';
@@ -129,8 +130,9 @@ const KEY_NAME_TO_FILENAME_MAP = {
     'g5': g5,
     'g-5': gs5,
 }
-class Key {
+class Key extends Object3D {
     constructor(octave, note, name, audiolist) {
+        super()
         let k = this 
         this.octave = octave
         this.note = note
@@ -214,10 +216,7 @@ class Key {
         }
     }
     playsound(velocity) {
-        // velocity = -6 = 1
         // change sound volume wrt velocity
-        // let scaledvel = -1 * velocity.y - 5 incorrect
-        // console.log(velocity)
         for (let s of this.sounds){ 
             if (!s.isPlaying) {
                 // volume goes from 0 to 20 without sounding bad
@@ -325,9 +324,9 @@ class Keys extends Group {
         this.keys = new Array(48) 
 
         this.position.add(new Vector3(-2.35, 4.92, -0.54))
+        // this.maxx()
 
         // instantiate each key
-        console.log(this.keys)
         for (let i = 0; i < this.keys.length; i++) {
             switch (i % 12) {
                 case 0:
@@ -370,6 +369,7 @@ class Keys extends Group {
                     console.log('something went wrong')
             }
         }
+        // console.log(this.keys)
         for (let k of this.keys) {            
             this.add(k.mesh)
             for (let s of k.sounds) {

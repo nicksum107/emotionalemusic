@@ -70,7 +70,7 @@ class MusicScene extends Scene {
         // Add meshes to scene
         // Piano, lights, and keys are not added within constructor
         // Drum and marbles are added to scene within constructor
-        const piano = new Piano()
+        const piano = new Piano(audiolist)
         const lights = new BasicLights();
         this.keys = new Keys(this)
         this.drum = new Drum(this, DRUM_RADIUS_BOTTOM, DRUM_RADIUS_TOP, DRUM_HALFHEIGHT * 2, new Vector3(this.state.drumX, this.state.drumY, this.state.drumZ));
@@ -263,6 +263,9 @@ class MusicScene extends Scene {
             }
         }
         presetSceneFolder.add(playRawJsonButton, 'playRawJson');
+        
+        // collisable meshes for general mesh collisions
+        this.collidablemeshes = [piano] 
     }
 
     // Create marble and handle anything needed on creation
@@ -359,6 +362,11 @@ class MusicScene extends Scene {
         }
 
         let toplay = String(event.key).toLowerCase()
+        if (toplay == "y") {
+            let marblePos = new Vector3(1,8,1)
+            const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, new Vector3(0,0,0))
+            return 
+        }
         if (event.shiftKey) {
             toplay.toLowerCase()
             toplay+="-"

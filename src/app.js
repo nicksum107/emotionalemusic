@@ -20,7 +20,7 @@ const renderer = new WebGLRenderer({ antialias: true });
 
 // Set up camera
 camera.position.set(-12, 11, 16);
-// camera.lookAt(new Vector3(0, 15, 0)); // See controls.target = ... below, this does not work
+
 
 // Set up renderer, canvas, and minor CSS adjustments
 renderer.setPixelRatio(window.devicePixelRatio);
