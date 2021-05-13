@@ -53,6 +53,7 @@ class MusicScene extends Scene {
             drumX: -1,
             drumY: 1.57,
             drumZ: 10,
+            rawJson: '',
         };
 
         this.camera = camera
@@ -119,7 +120,7 @@ class MusicScene extends Scene {
             createMarble: function() { 
                 const marblePos = new Vector3(state['Marble x'], state['Marble y'], state['Marble z'])
                 const marbleVel = new Vector3(state['Marble Vel x'], state['Marble Vel y'], state['Marble Vel z']);
-                const m = new Marble(scene, state.marbleRadius, state.marbleMass, marblePos, marbleVel)
+                const m = scene.createMarble(state.marbleRadius, state.marbleMass, marblePos, marbleVel)
             }
         };
         marbleFolder.add(createMarbleButton, 'createMarble')
@@ -138,65 +139,82 @@ class MusicScene extends Scene {
         this.queuedNotes = [];
         this.lastTimestamp = 0;
 
+        // Function to play scene given json
+        const playJson = function(json) {
+            // Replace queuedNotes with the notes from json
+            scene.queuedNotes = [];
+
+            // Set drum position
+            state.drumX = json.drumPos[0]
+            state.drumY = json.drumPos[1]
+            state.drumZ = json.drumPos[2]
+            const drumPos = new Vector3(json.drumPos[0], json.drumPos[1], json.drumPos[2])
+            scene.drum.mesh.position.copy(drumPos);
+
+            // Populate notes in the same order as JSON
+            for (let i = 0; i < json.notes.length; i++) {
+                const note = json.notes[i];
+                const timestamp = json.notes[i].timestamp + scene.lastTimestamp;
+                // Preset: 'a2', 'a-2', etc.
+                if (note.type === 'preset') {
+                    // Check for drum/side of drum first
+                    if (note.value === 'drum') {
+                        scene.queuedNotes.push({
+                            timestamp: timestamp,
+                            pos: scene.getPresetDrumMarblePos(),
+                            vel: scene.getPresetDrumMarbleVel(),
+                        });
+                    }
+                    if (note.value === 'sidedrum') {
+                        scene.queuedNotes.push({
+                            timestamp: timestamp,
+                            pos: scene.getPresetSideDrumMarblePos(),
+                            vel: scene.getPresetSideDrumMarbleVel(),
+                        });
+                    }
+
+                    // Find the desired key
+                    for (let k of scene.keys.keys) {
+                        if (k.name === note.value) {
+                            // Compute quantities
+                            const marblePos = scene.getPresetKeyMarblePos(k)
+                            const marbleVel = scene.getPresetKeyMarbleVel();
+
+                            // Object defining what kind of marble to create
+                            scene.queuedNotes.push({
+                                timestamp: timestamp,
+                                pos: marblePos,
+                                vel: marbleVel
+                            })
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         // Button to play scene
         const playSceneButton = {
             playScene: function() {
                 // Load the json according to which scene was selected
-                loadJSON(presetSceneMap[state.presetScene], function(json) {
-                    // Replace queuedNotes with the notes from json
-                    scene.queuedNotes = [];
-
-                    // Set drum position
-                    scene.state.drumX = json.drumPos[0]
-                    scene.state.drumY = json.drumPos[1]
-                    scene.state.drumZ = json.drumPos[2]
-                    const drumPos = new Vector3(json.drumPos[0], json.drumPos[1], json.drumPos[2])
-                    scene.drum.mesh.position.copy(drumPos);
-
-                    // Populate notes in the same order as JSON
-                    for (let i = 0; i < json.notes.length; i++) {
-                        const note = json.notes[i];
-                        const timestamp = json.notes[i].timestamp + scene.lastTimestamp;
-                        // Preset: 'a2', 'a-2', etc.
-                        if (note.type === 'preset') {
-                            // Check for drum/side of drum first
-                            if (note.value === 'drum') {
-                                scene.queuedNotes.push({
-                                    timestamp: timestamp,
-                                    pos: scene.getPresetDrumMarblePos(),
-                                    vel: scene.getPresetDrumMarbleVel(),
-                                });
-                            }
-                            if (note.value === 'sidedrum') {
-                                scene.queuedNotes.push({
-                                    timestamp: timestamp,
-                                    pos: scene.getPresetSideDrumMarblePos(),
-                                    vel: scene.getPresetSideDrumMarbleVel(),
-                                });
-                            }
-
-                            // Find the desired key
-                            for (let k of scene.keys.keys) {
-                                if (k.name === note.value) {
-                                    // Compute quantities
-                                    const marblePos = scene.getPresetKeyMarblePos(k)
-                                    const marbleVel = scene.getPresetKeyMarbleVel();
-
-                                    // Object defining what kind of marble to create
-                                    scene.queuedNotes.push({
-                                        timestamp: timestamp,
-                                        pos: marblePos,
-                                        vel: marbleVel
-                                    })
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                });
+                loadJSON(presetSceneMap[state.presetScene], playJson);
             }
         }
         presetSceneFolder.add(playSceneButton, 'playScene');
+
+        // Raw json input of scenes
+        presetSceneFolder.add(this.state, 'rawJson');
+        const playRawJsonButton = {
+            playRawJson: function() {
+                playJson(JSON.parse(state.rawJson));
+            }
+        }
+        presetSceneFolder.add(playRawJsonButton, 'playRawJson');
+    }
+
+    // Create marble and handle anything needed on creation
+    createMarble(marbleRadius, marbleMass, marblePos, marbleVel) {
+        return new Marble(this, marbleRadius, marbleMass, marblePos, marbleVel);
     }
 
     addToUpdateList(object) {
@@ -215,7 +233,7 @@ class MusicScene extends Scene {
 
         // Play all queued notes
         while (this.queuedNotes.length > 0 && this.queuedNotes[0].timestamp <= timeStamp) {
-            const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, this.queuedNotes[0].pos, this.queuedNotes[0].vel);
+            const m = this.createMarble(this.state.marbleRadius, this.state.marbleMass, this.queuedNotes[0].pos, this.queuedNotes[0].vel);
             this.queuedNotes.shift();
         }
 
@@ -258,11 +276,16 @@ class MusicScene extends Scene {
 
     keyDownHandler(event) {
         console.log(event)
+        // Don't do anything if this was inside a text box
+        if (event.target.tagName === 'INPUT') {
+            return;
+        }
+
         // Drum
         if (String(event.key).toLowerCase() === 'p') {
             const marblePos = this.getPresetDrumMarblePos();
             const marbleVel = this.getPresetDrumMarbleVel();
-            const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
+            const m = this.createMarble(this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
             return;
         }
 
@@ -270,7 +293,7 @@ class MusicScene extends Scene {
         if (String(event.key).toLowerCase() === 'o') {
             const marblePos = this.getPresetSideDrumMarblePos();
             const marbleVel = this.getPresetSideDrumMarbleVel();
-            const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
+            const m = this.createMarble(this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
         }
 
         let toplay = String(event.key).toLowerCase()
@@ -290,7 +313,7 @@ class MusicScene extends Scene {
             if (k.name == toplay) {
                 const marblePos = this.getPresetKeyMarblePos(k)
                 const marbleVel = this.getPresetKeyMarbleVel();
-                const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel)
+                const m = this.createMarble(this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel)
             }
         }
     }
