@@ -146,6 +146,13 @@ class MusicScene extends Scene {
                     // Replace queuedNotes with the notes from json
                     scene.queuedNotes = [];
 
+                    // Set drum position
+                    scene.state.drumX = json.drumPos[0]
+                    scene.state.drumY = json.drumPos[1]
+                    scene.state.drumZ = json.drumPos[2]
+                    const drumPos = new Vector3(json.drumPos[0], json.drumPos[1], json.drumPos[2])
+                    scene.drum.mesh.position.copy(drumPos);
+
                     // Populate notes in the same order as JSON
                     for (let i = 0; i < json.notes.length; i++) {
                         const note = json.notes[i];
