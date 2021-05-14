@@ -153,7 +153,7 @@ class MusicScene extends Scene {
         // Physical Constants
         const physicsFolder = this.state.gui.addFolder('Physics');
         physicsFolder.add(this.state, 'marbleMass', 0.1, 10, 0.1);
-        physicsFolder.add(this.state, 'marbleRadius', 0.1, 0.5, 0.01);
+        // physicsFolder.add(this.state, 'marbleRadius', 0.1, 0.5, 0.01);
         physicsFolder.add(this.state, 'pianoCollisions');
 
         // Create marble folder
