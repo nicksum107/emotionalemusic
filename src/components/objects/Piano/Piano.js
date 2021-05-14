@@ -48,7 +48,7 @@ class Piano extends Group {
                 // volume goes from 0 to 20 without sounding bad
                 // console.log(scaledvel, s.getVolume())
 
-                s.setVolume(-1 * velocity.length() *1)
+                s.setVolume(velocity.length() / 10)
                 s.play()
                 break 
             }

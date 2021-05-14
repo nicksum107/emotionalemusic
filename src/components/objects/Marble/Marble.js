@@ -162,8 +162,10 @@ class Marble extends Object3D {
             bb.expandByScalar(EPS)
 
             let keytopy = bb.max.y + k.mesh.position.y
+            let keybottomy = bb.min.y + k.mesh.position.y
             // Check for collision
             if (localpos.y - this.radius < keytopy &&
+                localpos.y + this.radius > keybottomy &&
                 localpos.x < bb.max.x + k.mesh.position.x && localpos.x > bb.min.x + k.mesh.position.x &&
                 localpos.z < bb.max.z + k.mesh.position.z && localpos.z > bb.min.z + k.mesh.position.z) {
 

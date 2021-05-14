@@ -364,7 +364,7 @@ class MusicScene extends Scene {
         let toplay = String(event.key).toLowerCase()
         if (toplay == "y") {
             let marblePos = new Vector3(1,8,1)
-            const m = new Marble(this, this.state.marbleRadius, this.state.marbleMass, marblePos, new Vector3(0,0,0))
+            const m = this.createMarble(this.state.marbleRadius, this.state.marbleMass, marblePos, new Vector3(0,1.67,0))
             return 
         }
         if (event.shiftKey) {
