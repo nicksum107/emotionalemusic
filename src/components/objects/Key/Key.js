@@ -389,7 +389,7 @@ class Keys extends Group {
                 // impart a small velocity to play the note
                 // velocity of -2.05 is the smallest and -4 the largest
                 // from rest position
-                k.addnVelocity.add(new Vector3(0,-3,0))
+                k.addnVelocity.add(new Vector3(0,-1.5,0))
             }
         }
     }
