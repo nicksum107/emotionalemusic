@@ -116,9 +116,11 @@ class Marble extends Object3D {
         if (this.checkDrumCollision()) {
             return true 
         }
-        if (this.checkMeshCollision()) {
-            return true 
-        } 
+        if (this.scene.state.pianoCollisions) {
+            if (this.checkMeshCollision()) {
+                return true
+            }
+        }
         return false
     }
     checkDrumCollision() {

@@ -55,6 +55,7 @@ class MusicScene extends Scene {
             drumZ: 10,
             rawJson: '',
             recordingOutput: '',
+            pianoCollisions: false,
         };
 
         this.camera = camera
@@ -153,6 +154,7 @@ class MusicScene extends Scene {
         const physicsFolder = this.state.gui.addFolder('Physics');
         physicsFolder.add(this.state, 'marbleMass', 0.1, 10, 0.1);
         physicsFolder.add(this.state, 'marbleRadius', 0.1, 0.5, 0.01);
+        physicsFolder.add(this.state, 'pianoCollisions');
 
         // Create marble folder
         const marbleFolder = this.state.gui.addFolder('Create Marble');
@@ -359,13 +361,14 @@ class MusicScene extends Scene {
             const marblePos = this.getPresetSideDrumMarblePos();
             const marbleVel = this.getPresetSideDrumMarbleVel();
             const m = this.createMarble(this.state.marbleRadius, this.state.marbleMass, marblePos, marbleVel);
+            return;
         }
 
         let toplay = String(event.key).toLowerCase()
-        if (toplay == "y") {
+        if (toplay == "y" && this.state.pianoCollisions) {
             let marblePos = new Vector3(1,8,1)
             const m = this.createMarble(this.state.marbleRadius, this.state.marbleMass, marblePos, new Vector3(0,1.67,0))
-            return 
+            return;
         }
         if (event.shiftKey) {
             toplay.toLowerCase()
